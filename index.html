@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>股海羅盤 | 台股學習與分析</title>
+<style>
+:root{--bg:#0f1420;--card:#182033;--line:#27324a;--tx:#e8ecf5;--mu:#8d99b3;--up:#ff4d5e;--dn:#22c08a;--ac:#6ea8ff}
+*{box-sizing:border-box;margin:0}body{font-family:system-ui,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--tx);display:flex;min-height:100vh}
+nav{width:92px;background:#0b101a;border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+nav b{font-size:13px;color:var(--ac);margin-bottom:10px}
+nav button{background:none;border:0;color:var(--mu);width:76px;padding:10px 0;border-radius:12px;font-size:12px;cursor:pointer}
+nav button span{display:block;font-size:20px}nav button.on{background:var(--card);color:var(--tx)}
+main{flex:1;padding:18px;max-width:1100px;margin:auto;width:100%}
+section{display:none}section.on{display:block}
+h2{margin:6px 0 12px}h3{margin:14px 0 8px;font-size:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.up{color:var(--up)}.dn{color:var(--dn)}.mu{color:var(--mu);font-size:13px}
+.heat{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.tile{border-radius:10px;padding:8px;cursor:pointer;font-size:13px;min-height:62px}
+.tile b{display:block}
+.row{display:flex;justify-content:space-between;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.row:hover{background:#1f2a42}
+input,select{background:#0f1420;border:1px solid var(--line);color:var(--tx);padding:10px;border-radius:10px;font-size:15px;width:100%}
+.bar{height:10px;border-radius:6px;background:linear-gradient(90deg,var(--dn),#e6c34a,var(--up));position:relative;margin:10px 0}
+.bar i{position:absolute;top:-4px;width:4px;height:18px;background:#fff;border-radius:2px}
+canvas{width:100%;height:260px;background:#0f1420;border-radius:12px}
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;background:#22304d;font-size:12px;margin:2px}
+.big{font-size:30px;font-weight:700}
+.step{border-left:3px solid var(--ac);padding:4px 12px;margin:10px 0}
+details{margin:8px 0}summary{cursor:pointer;font-weight:600}
+.warn{font-size:12px;color:var(--mu);margin-top:20px;line-height:1.6}
+@media(max-width:700px){body{flex-direction:column-reverse}nav{width:100%;height:auto;position:fixed;bottom:0;left:0;flex-direction:row;justify-content:space-around;padding:4px;z-index:9;border-top:1px solid var(--line);border-right:0}
+nav b{display:none}nav button{width:auto;flex:1;padding:6px 0}main{padding:12px 12px 90px}}
+</style></head><body>
+<nav><b>股海羅盤</b>
+<button class="on" data-p="map"><span>🗺️</span>市場地圖</button>
+<button data-p="rank"><span>📊</span>漲跌榜</button>
+<button data-p="ana"><span>🔍</span>個股分析</button>
+<button data-p="learn"><span>🎓</span>學習</button>
+<button data-p="tool"><span>🧮</span>工具</button></nav>
+<main>
+<section id="map" class="on"><h2>市場地圖 <span class="mu" id="src"></span></h2>
+<div class="card"><div class="mu">方塊越紅越漲、越綠越跌（台股習慣：紅漲綠跌）。點方塊看分析。</div></div>
+<div class="card"><div class="heat" id="heat"></div></div></section>
+
+<section id="rank"><h2>今日漲跌榜</h2><div class="grid">
+<div class="card"><h3 class="up">🔥 漲幅前 10</h3><div id="topU"></div></div>
+<div class="card"><h3 class="dn">❄️ 跌幅前 10</h3><div id="topD"></div></div>
+<div class="card"><h3>💰 成交量前 10</h3><div id="topV"></div></div></div></section>
+
+<section id="ana"><h2>個股分析</h2>
+<select id="sel"></select>
+<div class="card" style="margin-top:12px"><div id="head"></div><canvas id="cv" width="900" height="400"></canvas>
+<div class="mu">線：收盤價、MA5(黃)、MA20(藍)、MA60(紫)</div></div>
+<div class="grid"><div class="card"><h3>📌 技術指標</h3><div id="ind"></div></div>
+<div class="card"><h3>🧭 明日傾向（規則評分）</h3><div id="sig"></div></div></div>
+<div class="card"><h3>🛡️ 停損停利參考</h3><div id="sl"></div></div></section>
+
+<section id="learn"><h2>股票入門學習路徑</h2>
+<div class="step"><b>第1步　基本觀念</b><details><summary>股票是什麼？</summary>買股票＝成為公司小股東，可能賺價差與股利，也可能虧損。</details>
+<details><summary>台股交易規則</summary>一般交易 9:00–13:30；漲跌幅限制 10%；1張＝1000股；零股可小額買。</details></div>
+<div class="step"><b>第2步　看懂數字</b><details><summary>本益比 P/E</summary>股價÷每股盈餘，越低不一定越好，要跟同產業比。</details>
+<details><summary>殖利率</summary>現金股利÷股價。</details><details><summary>EPS / ROE</summary>EPS 每股賺多少；ROE 公司用股東資金賺錢的效率。</details></div>
+<div class="step"><b>第3步　技術分析</b><details><summary>均線 MA</summary>過去 N 天收盤平均。短線上穿長線叫黃金交叉。</details>
+<details><summary>RSI</summary>0–100，>70 偏熱，<30 偏冷。</details>
+<details><summary>MACD</summary>看趨勢動能，柱狀體由負轉正代表動能轉強。</details>
+<details><summary>KD、布林通道、成交量</summary>量增價漲較健康；價漲量縮要小心。</details></div>
+<div class="step"><b>第4步　風險管理</b>永遠先設停損；單一股票不要超過資金 20%；分批買進；不借錢投資。</div>
+<div class="step"><b>第5步　ETF</b>0050 追蹤大型股、0056/00878 偏高股息；新手可先從 ETF 定期定額學習。</div>
+<div class="step"><b>第6步　防詐</b>「保證獲利」「老師帶單」「加LINE飆股」都是詐騙警訊。</div></section>
+
+<section id="tool"><h2>小工具</h2><div class="grid">
+<div class="card"><h3>手續費與損益</h3>買價<input id="b" type="number" value="100">賣價<input id="s" type="number" value="105">股數<input id="q" type="number" value="1000"><br><br>
+<label><input id="dc" type="checkbox" style="width:auto"> 券商手續費 2.8 折</label><div id="pl" style="margin-top:10px"></div></div>
+<div class="card"><h3>複利試算</h3>本金<input id="p0" type="number" value="10000">每月投入<input id="pm" type="number" value="3000">年報酬率 %<input id="pr" type="number" value="6">年數<input id="py" type="number" value="10"><div id="cp" style="margin-top:10px"></div></div></div></section>
+<p class="warn">⚠️ 本網站為學習用途，所有分數與傾向由簡單規則計算，不是投資建議，也無法保證預測正確。若顯示「示範資料」，歷史走勢為模擬產生。投資有風險，請自行判斷。</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
+function go(p){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==p));
+document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p==p));scrollTo(0,0)}
+let stocks=[];
+const demo=[["2330","台積電",1050],["2317","鴻海",210],["2454","聯發科",1300],["2412","中華電",125],["2882","國泰金",68],["2881","富邦金",92],["2308","台達電",380],["2303","聯電",50],["1301","台塑",45],["2002","中鋼",22],["2603","長榮",190],["2609","陽明",80],["2615","萬海",85],["3711","日月光",160],["2382","廣達",290],["3231","緯創",110],["2357","華碩",520],["2379","瑞昱",500],["2891","中信金",42],["2886","兆豐金",42],["1216","統一",75],["2912","統一超",280],["0050","元大台灣50",190],["0056","元大高股息",38],["00878","國泰永續高股息",23]];
+function rng(seed){let s=seed;return()=>((s=Math.imul(s^s>>>15,2246822507)+1013904223|0)>>>0)/4294967296}
+function hist(code,close){let r=rng(+code||7);let a=[close];for(let i=1;i<130;i++){a.unshift(a[0]/(1+(r()-0.495)*0.03))}return a}
+const H={};
+function getH(s){if(!H[s.code])H[s.code]=hist(s.code,s.close);return H[s.code]}
+async function load(){
+ try{const r=await fetch('https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL');const j=await r.json();
+ stocks=j.map(x=>{const c=parseFloat(x.ClosingPrice),ch=parseFloat(x.Change);return{code:x.Code,name:x.Name,close:c,chg:ch,pct:ch/(c-ch)*100,vol:+x.TradeVolume,val:+x.TradeValue}}).filter(s=>s.close>0&&isFinite(s.pct)&&s.code.length<=5&&s.vol>0);
+ if(stocks.length<50)throw 0;$('src').textContent='（資料：證交所 OpenAPI）';
+ }catch(e){const r=rng(new Date().getDate()+3);stocks=demo.map(d=>{const p=(r()-0.5)*8;const c=d[2];return{code:d[0],name:d[1],close:c,chg:c*p/100,pct:p,vol:Math.round(r()*5e7),val:0}});$('src').textContent='（示範資料）'}
+ stocks.forEach(s=>{if(!s.val)s.val=s.vol*s.close});
+ render()}
+const col=p=>p>=0?`rgba(255,77,94,${Math.min(.95,.2+p/8)})`:`rgba(34,192,138,${Math.min(.95,.2-p/8+.0)})`;
+const fm=n=>n.toLocaleString('zh-TW',{maximumFractionDigits:2});
+const pc=p=>`<span class="${p>=0?'up':'dn'}">${p>=0?'▲':'▼'}${Math.abs(p).toFixed(2)}%</span>`;
+function list(id,a){$(id).innerHTML=a.map(s=>`<div class="row" onclick="pick('${s.code}')"><span>${s.code} ${s.name}</span><span>${fm(s.close)} ${pc(s.pct)}</span></div>`).join('')}
+function render(){
+ const top=[...stocks].sort((a,b)=>b.val-a.val).slice(0,60);
+ $('heat').innerHTML=top.map(s=>`<div class="tile" style="background:${col(s.pct)}" onclick="pick('${s.code}')"><b>${s.name}</b>${s.code}<br>${s.pct.toFixed(2)}%</div>`).join('');
+ const liq=stocks.filter(s=>s.val>1e7);
+ list('topU',[...liq].sort((a,b)=>b.pct-a.pct).slice(0,10));
+ list('topD',[...liq].sort((a,b)=>a.pct-b.pct).slice(0,10));
+ list('topV',[...stocks].sort((a,b)=>b.vol-a.vol).slice(0,10));
+ $('sel').innerHTML=[...stocks].sort((a,b)=>a.code.localeCompare(b.code)).map(s=>`<option value="${s.code}">${s.code} ${s.name}</option>`).join('');
+ $('sel').onchange=()=>analyze($('sel').value);analyze(top[0].code)}
+function pick(c){$('sel').value=c;analyze(c);go('ana')}
+const sma=(a,n)=>a.map((_,i)=>i<n-1?null:a.slice(i-n+1,i+1).reduce((x,y)=>x+y)/n);
+function ema(a,n){const k=2/(n+1);let e=[a[0]];for(let i=1;i<a.length;i++)e.push(a[i]*k+e[i-1]*(1-k));return e}
+function rsi(a,n=14){let g=0,l=0;for(let i=a.length-n;i<a.length;i++){const d=a[i]-a[i-1];d>0?g+=d:l-=d}return l==0?100:100-100/(1+g/l)}
+function analyze(code){
+ const s=stocks.find(x=>x.code==code);let a=[...getH(s)];
+ const last=a[a.length-1];a=a.map(v=>v*s.close/last);
+ const m5=sma(a,5),m20=sma(a,20),m60=sma(a,60),R=rsi(a);
+ const e12=ema(a,12),e26=ema(a,26),dif=e12.map((v,i)=>v-e26[i]),dea=ema(dif,9),hist=dif.map((v,i)=>v-dea[i]);
+ const n=a.length-1;let score=50,why=[];
+ if(a[n]>m20[n]){score+=10;why.push('收盤站上月線 (+10)')}else{score-=10;why.push('收盤跌破月線 (-10)')}
+ if(m5[n]>m20[n]){score+=10;why.push('短均線在長均線上 (+10)')}else{score-=10;why.push('短均線在長均線下 (-10)')}
+ if(m20[n]>m60[n]){score+=8;why.push('中期趨勢向上 (+8)')}else{score-=8;why.push('中期趨勢向下 (-8)')}
+ if(hist[n]>0&&hist[n]>hist[n-1]){score+=10;why.push('MACD 動能轉強 (+10)')}else if(hist[n]<0){score-=8;why.push('MACD 動能偏弱 (-8)')}
+ if(R>70){score-=10;why.push('RSI 過熱 (-10)')}else if(R<30){score+=10;why.push('RSI 超賣可能反彈 (+10)')}
+ score=Math.max(0,Math.min(100,score));
+ const lab=score>=70?'偏多':score>=55?'中性偏多':score>45?'中性':score>30?'中性偏空':'偏空';
+ const vol=Math.sqrt(a.slice(-20).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/19)*100;
+ $('head').innerHTML=`<b>${s.code} ${s.name}</b><div class="big">${fm(s.close)} ${pc(s.pct)}</div><div class="mu">成交量 ${fm(s.vol)} 股</div>`;
+ $('ind').innerHTML=`MA5：${m5[n].toFixed(2)}<br>MA20：${m20[n].toFixed(2)}<br>MA60：${m60[n].toFixed(2)}<br>RSI(14)：${R.toFixed(1)}<br>MACD 柱：${hist[n].toFixed(2)}<br>20日波動：${vol.toFixed(2)}%/日<br>近120日高/低：${fm(Math.max(...a))} / ${fm(Math.min(...a))}`;
+ $('sig').innerHTML=`<div class="big">${score}/100　${lab}</div><div class="bar"><i style="left:${score}%"></i></div>${why.map(w=>`<span class="tag">${w}</span>`).join('')}<p class="mu" style="margin-top:8px">這只是「技術面規則」的傾向，不是預言。是否買進還需看基本面、消息與自己的風險承受度。</p>`;
+ const atr=a[n]*vol/100*2;
+ $('sl').innerHTML=`停損參考：<b class="dn">${(a[n]-atr*1.5).toFixed(2)}</b>（約 ${(atr*1.5/a[n]*100).toFixed(1)}%）<br>停利參考：<b class="up">${(a[n]+atr*3).toFixed(2)}</b>（風險報酬比 1:2）`;
+ draw(a,m5,m20,m60)}
+function draw(a,...ms){const c=$('cv'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);
+ const lo=Math.min(...a)*.98,hi=Math.max(...a)*1.02,X=i=>i/(a.length-1)*(c.width-20)+10,Y=v=>c.height-10-(v-lo)/(hi-lo)*(c.height-20);
+ const line=(arr,color,w)=>{x.beginPath();x.strokeStyle=color;x.lineWidth=w;let st=0;arr.forEach((v,i)=>{if(v==null)return;st?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v));st=1});x.stroke()};
+ line(a,'#e8ecf5',2);line(ms[0],'#ffd34d',1.5);line(ms[1],'#6ea8ff',1.5);line(ms[2],'#b57cff',1.5)}
+['b','s','q','dc'].forEach(i=>$(i).oninput=calc);
+function calc(){const b=+$('b').value,s=+$('s').value,q=+$('q').value,d=$('dc').checked?0.28:1;
+ const fb=Math.max(20,b*q*0.001425*d),fs=Math.max(20,s*q*0.001425*d),tax=s*q*0.003,net=(s-b)*q-fb-fs-tax;
+ $('pl').innerHTML=`手續費 ${Math.round(fb+fs)}、證交稅 ${Math.round(tax)}<br>淨損益：<b class="${net>=0?'up':'dn'}">${Math.round(net)} 元</b>`}
+['p0','pm','pr','py'].forEach(i=>$(i).oninput=comp);
+function comp(){let v=+$('p0').value,m=+$('pm').value,r=+$('pr').value/1200,y=+$('py').value;for(let i=0;i<y*12;i++)v=v*(1+r)+m;
+ $('cp').innerHTML=`${y} 年後約 <b>${Math.round(v).toLocaleString()}</b> 元，總投入 ${(+$('p0').value+m*y*12).toLocaleString()} 元`}
+calc();comp();load();
+</script></body></html>
