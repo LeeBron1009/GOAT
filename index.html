@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>股海羅盤 | 台股學習與分析</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#070b14;--card:rgba(24,32,54,.62);--line:rgba(130,160,255,.16);--tx:#eaf0ff;--mu:#8a96b8;--up:#ff5468;--dn:#1fd6a0;--ac:#6ea8ff;--ac2:#b57cff;--g:linear-gradient(135deg,#6ea8ff,#b57cff 55%,#ff6fb5)}
-*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth}
+*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth;overflow-x:hidden}
 body{font-family:"Noto Sans TC",system-ui,sans-serif;background:var(--bg);color:var(--tx);display:flex;min-height:100vh;overflow-x:hidden}
 .num,.big,.tile i{font-family:"Space Grotesk",monospace;font-style:normal}
-#bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 #bg span{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;animation:fl 18s ease-in-out infinite alternate}
 #bg span:nth-child(1){width:420px;height:420px;background:#3b6cff;top:-100px;left:10%}
 #bg span:nth-child(2){width:380px;height:380px;background:#a04cff;bottom:-100px;right:5%;animation-delay:-6s}
 #bg span:nth-child(3){width:300px;height:300px;background:#ff4f9a;top:40%;left:55%;animation-delay:-11s;opacity:.18}
 @keyframes fl{to{transform:translate(80px,60px) scale(1.2)}}
-#bg:after{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 70%);opacity:.5}
+#bg:after{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 70%);-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 70%);opacity:.5}
 nav{width:96px;background:rgba(7,11,20,.7);backdrop-filter:blur(14px);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;z-index:10}
-.logo{font-family:"Space Grotesk";font-weight:700;font-size:13px;margin-bottom:12px;letter-spacing:1px;cursor:pointer;border:0;background:none;padding:8px 10px;border-radius:12px;transition:.25s;display:flex;align-items:center;gap:5px}
+.logo{font-family:"Space Grotesk";font-weight:700;font-size:13px;margin-bottom:12px;letter-spacing:1px;cursor:pointer;border:0;background:none;padding:8px 10px;border-radius:12px;transition:.25s;display:flex;align-items:center;gap:5px;color:var(--tx)}
 .logo u{text-decoration:none;display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--g);box-shadow:0 0 10px #8c78ff;transition:.6s}
 .logo em{font-style:normal;background:var(--g);-webkit-background-clip:text;color:transparent}
 .logo:hover{background:rgba(110,168,255,.15);box-shadow:0 0 16px rgba(110,168,255,.3)}
@@ -27,7 +27,7 @@ nav button.nb:hover{color:var(--tx)}nav button.nb:hover span{transform:translate
 nav button.nb.on{background:linear-gradient(135deg,rgba(110,168,255,.22),rgba(181,124,255,.22));color:#fff;box-shadow:0 0 18px rgba(110,168,255,.3)}
 .mbrand{display:none}
 main{flex:1;padding:18px 22px;max-width:1120px;margin:auto;width:100%;min-width:0}
-#tick{overflow:hidden;white-space:nowrap;border:1px solid var(--line);border-radius:12px;padding:8px 0;margin-bottom:16px;background:var(--card);backdrop-filter:blur(10px)}
+#tick{overflow:hidden;white-space:nowrap;border:1px solid var(--line);border-radius:12px;padding:8px 0;margin-bottom:16px;background:var(--card)}
 #tick div{display:inline-block;animation:mq 60s linear infinite;padding-left:100%}
 #tick:hover div{animation-play-state:paused}#tick span{margin:0 18px;font-size:13px}
 @keyframes mq{to{transform:translateX(-100%)}}
@@ -37,9 +37,9 @@ h1{font-size:clamp(26px,5vw,44px);font-weight:900;line-height:1.2}
 h1 em{font-style:normal;background:var(--g);-webkit-background-clip:text;color:transparent;background-size:200%;animation:sh 6s linear infinite}
 @keyframes sh{to{background-position:200%}}
 h2{font-size:24px;margin:4px 0 14px;font-weight:700}h3{margin:6px 0 10px;font-size:16px;font-weight:700}
-.card{background:var(--card);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:16px;transition:.3s;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:16px;transition:.3s;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .card:hover{border-color:rgba(110,168,255,.45)}
-.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr))}
 .up{color:var(--up)}.dn{color:var(--dn)}.mu{color:var(--mu);font-size:13px;line-height:1.6}
 .hero{padding:26px 22px}.hero p{margin:10px 0 16px;color:var(--mu);max-width:560px;line-height:1.7}
 .btn{background:var(--g);color:#fff;border:0;border-radius:12px;padding:10px 18px;font:700 14px "Noto Sans TC";cursor:pointer;transition:.25s;margin:3px 6px 3px 0}
@@ -55,13 +55,13 @@ h2{font-size:24px;margin:4px 0 14px;font-weight:700}h3{margin:6px 0 10px;font-si
 .tile b{display:block}@keyframes pop{from{opacity:0;transform:scale(.7)}}
 .row{display:flex;justify-content:space-between;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px;transition:.2s;border-radius:8px;gap:6px}
 .row:hover{background:rgba(110,168,255,.12);padding-left:12px}
-.row .rk{width:22px;color:var(--mu);font-family:"Space Grotesk"}.row .nm{flex:1}
+.row .rk{width:22px;color:var(--mu);font-family:"Space Grotesk"}.row .nm{flex:1;min-width:0}
 .star{background:none;border:0;cursor:pointer;font-size:17px;color:var(--mu);transition:.2s}.star.on{color:#ffd34d;transform:scale(1.2)}
-input,select{background:rgba(7,11,20,.7);border:1px solid var(--line);color:var(--tx);padding:11px;border-radius:12px;font:15px "Noto Sans TC";width:100%;outline:0;transition:.2s}
+input,select{background:rgba(7,11,20,.7);border:1px solid var(--line);color:var(--tx);padding:11px;border-radius:12px;font:16px "Noto Sans TC";width:100%;outline:0;transition:.2s}
 input:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(110,168,255,.2)}
 .cw{position:relative}
-canvas{width:100%;height:300px;background:rgba(7,11,20,.6);border-radius:14px;cursor:crosshair;touch-action:pan-y}
-#pop{position:absolute;top:8px;z-index:5;width:215px;background:rgba(14,20,38,.96);backdrop-filter:blur(12px);border:1px solid var(--ac);border-radius:16px;padding:12px 14px;font-size:13px;box-shadow:0 12px 34px rgba(0,0,0,.55);opacity:0;pointer-events:none;transform:scale(.92);transition:opacity .18s,transform .18s}
+canvas{width:100%;height:300px;background:rgba(7,11,20,.6);border-radius:14px;cursor:crosshair;touch-action:pan-y;display:block}
+#pop{position:absolute;top:8px;z-index:5;width:215px;background:rgba(14,20,38,.97);border:1px solid var(--ac);border-radius:16px;padding:12px 14px;font-size:13px;box-shadow:0 12px 34px rgba(0,0,0,.55);opacity:0;pointer-events:none;transform:scale(.92);transition:opacity .18s,transform .18s}
 #pop.s{opacity:1;pointer-events:auto;transform:scale(1)}
 #pop .pd{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:8px}
 #pop .pr{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--line)}
@@ -71,7 +71,7 @@ canvas{width:100%;height:300px;background:rgba(7,11,20,.6);border-radius:14px;cu
 #pop .pn button:hover{background:var(--ac);color:#06101f}
 #pop .x{background:none;border:0;color:var(--mu);cursor:pointer;font-size:16px}
 .big{font-size:34px;font-weight:700}
-.ind{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.ind{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .ic{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid var(--line);transition:.25s}
 .ic:hover{background:rgba(110,168,255,.12);transform:translateY(-3px)}
 .ic .k{font-size:12px;color:var(--mu);margin-bottom:6px}.ic .v{font:700 22px "Space Grotesk";margin-bottom:6px}
@@ -79,7 +79,7 @@ canvas{width:100%;height:300px;background:rgba(7,11,20,.6);border-radius:14px;cu
 .tg.u{background:rgba(255,84,104,.18);color:var(--up)}.tg.d{background:rgba(31,214,160,.18);color:var(--dn)}.tg.n{background:rgba(255,255,255,.1);color:var(--mu)}
 .gauge{width:170px;height:100px;margin:auto;display:block}
 .tag{display:inline-block;padding:4px 11px;border-radius:20px;background:rgba(110,168,255,.14);font-size:12px;margin:3px}
-.lesson{display:grid;grid-template-columns:210px 1fr;gap:16px}
+.lesson{display:grid;grid-template-columns:210px minmax(0,1fr);gap:16px}
 .lnav button{display:block;width:100%;text-align:left;background:none;border:1px solid transparent;color:var(--mu);padding:11px 12px;border-radius:12px;cursor:pointer;font:500 14px "Noto Sans TC";margin-bottom:4px;transition:.2s}
 .lnav button:hover{background:rgba(255,255,255,.05)}.lnav button.on{background:rgba(110,168,255,.16);color:#fff;border-color:var(--line)}
 .prog{height:6px;background:rgba(255,255,255,.08);border-radius:4px;margin-bottom:12px;overflow:hidden}.prog i{display:block;height:100%;background:var(--g);transition:.5s;width:0}
@@ -91,10 +91,24 @@ canvas{width:100%;height:300px;background:rgba(7,11,20,.6);border-radius:14px;cu
 @keyframes sk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}th{color:var(--mu);font-weight:500}
 .warn{font-size:12px;color:var(--mu);margin:24px 0 10px;line-height:1.7}
-#toast{position:fixed;bottom:90px;left:50%;transform:translate(-50%,30px);background:#111a30;border:1px solid var(--ac);padding:10px 18px;border-radius:30px;opacity:0;transition:.35s;z-index:99;font-size:14px}#toast.s{opacity:1;transform:translate(-50%,0)}
-@media(max-width:760px){body{flex-direction:column-reverse}nav{width:100%;height:auto;position:fixed;bottom:0;left:0;flex-direction:row;justify-content:space-around;padding:4px;border-top:1px solid var(--line);border-right:0}
-nav .logo{display:none}nav button.nb{width:auto;flex:1;padding:6px 0;font-size:11px}main{padding:12px 12px 96px}.lesson{grid-template-columns:1fr}.lnav{display:flex;overflow-x:auto;gap:4px}.lnav button{white-space:nowrap;width:auto}
-.mbrand{display:flex;margin-bottom:10px}#pop{width:190px}}
+#toast{position:fixed;bottom:30px;left:50%;transform:translate(-50%,30px);background:#111a30;border:1px solid var(--ac);padding:10px 18px;border-radius:30px;opacity:0;transition:.35s;z-index:99;font-size:14px;pointer-events:none}#toast.s{opacity:1;transform:translate(-50%,0)}
+@media(max-width:760px){
+body{display:block}
+nav{top:auto;right:0;bottom:0;left:0;width:100%;height:auto;position:fixed;flex-direction:row;align-items:stretch;justify-content:space-around;gap:0;padding:4px 4px calc(4px + env(safe-area-inset-bottom));background:rgba(9,13,24,.97);-webkit-backdrop-filter:none;backdrop-filter:none;border-top:1px solid var(--line);border-right:0}
+nav .logo{display:none}
+nav button.nb{width:auto;flex:1;padding:6px 0;font-size:11px}
+nav button.nb span{font-size:20px}
+main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
+.lesson{grid-template-columns:minmax(0,1fr)}
+.lnav{display:flex;overflow-x:auto;gap:4px}.lnav button{white-space:nowrap;width:auto}
+.mbrand{display:flex}
+#pop{width:190px}
+.hero{padding:20px 16px}
+.stats{grid-template-columns:repeat(2,1fr)}
+.heat{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+#toast{bottom:calc(86px + env(safe-area-inset-bottom))}
+.big{font-size:28px}
+}
 </style></head><body>
 <div id="bg"><span></span><span></span><span></span></div>
 <nav>
@@ -127,7 +141,7 @@ nav .logo{display:none}nav button.nb{width:auto;flex:1;padding:6px 0;font-size:1
 <div><button class="star" id="stbtn" style="font-size:28px" onclick="toggleW()">☆</button></div></div>
 <div class="chips" id="cf" style="margin:8px 0"><button class="on" data-c="k">🕯️ K 線</button><button data-c="l">📈 折線</button><button data-m="1" class="on">均線</button><button data-r="60">近60日</button><button data-r="120" class="on">近120日</button></div>
 <div class="cw"><canvas id="cv" width="1000" height="460"></canvas><div id="pop"></div></div>
-<div class="mu" id="hv" style="margin-top:6px">👆 點圖上任何位置，可看當天的詳細資料。MA5 黃／MA20 藍／MA60 紫</div></div>
+<div class="mu" id="hv" style="margin-top:6px">👆 點圖上任何位置，可看當天的詳細資料。MA5 黃／MA20 藍／MA60 紫</div><div class="mu" id="dsrc"></div></div>
 <div class="grid"><div class="card"><h3>🧭 明日傾向（規則評分）</h3><svg class="gauge" viewBox="0 0 170 100" id="gg"></svg><div id="sig"></div></div>
 <div class="card"><h3>📌 技術指標</h3><div class="ind" id="ind"></div></div></div>
 <div class="card"><h3>🛡️ 停損停利參考</h3><div id="sl"></div></div></section>
@@ -143,7 +157,7 @@ nav .logo{display:none}nav button.nb{width:auto;flex:1;padding:6px 0;font-size:1
 <div class="card"><h3>手續費與損益</h3>買價<input id="b" type="number" value="100">賣價<input id="s" type="number" value="105">股數<input id="q" type="number" value="1000"><br><br>
 <label><input id="dc" type="checkbox" style="width:auto"> 券商手續費 2.8 折</label><div id="pl" style="margin-top:10px"></div></div>
 <div class="card"><h3>複利試算</h3>本金<input id="p0" type="number" value="10000">每月投入<input id="pm" type="number" value="3000">年報酬率 %<input id="pr" type="number" value="6">年數<input id="py" type="number" value="10"><div id="cp" style="margin-top:10px"></div></div></div></section>
-<p class="warn">⚠️ 本網站僅供學習，分數由簡單規則計算，不是投資建議，也不保證預測正確。若顯示「示範資料」，歷史走勢、成交量與日期為模擬產生。投資有風險。</p>
+<p class="warn">⚠️ 本網站僅供學習，分數由簡單規則計算，不是投資建議，也不保證預測正確。若圖表下方標示「模擬資料」，代表該檔沒有真實歷史資料。投資有風險。</p>
 </main><div id="toast"></div>
 <script>
 const $=id=>document.getElementById(id);
@@ -151,20 +165,23 @@ function go(p){document.querySelectorAll('section').forEach(s=>s.classList.toggl
 function goHome(){hf='all';document.querySelectorAll('#hf button').forEach(x=>x.classList.toggle('on',x.dataset.f=='all'));if(stocks.length)renderHeat();go('map')}
 document.querySelectorAll('nav .nb').forEach(b=>b.onclick=()=>go(b.dataset.p));
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1800)}
-let stocks=[],W=JSON.parse(localStorage.getItem('w')||'["2330","0050"]'),hf='all',topN=10,ctype='k',showM=true,rng_=120,cur=null,selI=null;
-const demo=[["2330","台積電",1050],["2317","鴻海",210],["2454","聯發科",1300],["2412","中華電",125],["2882","國泰金",68],["2881","富邦金",92],["2308","台達電",380],["2303","聯電",50],["1301","台塑",45],["2002","中鋼",22],["2603","長榮",190],["2609","陽明",80],["2615","萬海",85],["3711","日月光",160],["2382","廣達",290],["3231","緯創",110],["2357","華碩",520],["2379","瑞昱",500],["2891","中信金",42],["2886","兆豐金",42],["1216","統一",75],["2912","統一超",280],["0050","元大台灣50",190],["0056","元大高股息",38],["00878","國泰永續高股息",23],["00919","群益台灣精選高息",24]];
+let REAL={},stocks=[],W=JSON.parse(localStorage.getItem('w')||'["2330","0050"]'),hf='all',topN=10,ctype='k',showM=true,rng_=120,cur=null,selI=null;
+const demo=[["2330","台積電",2350],["2317","鴻海",210],["2454","聯發科",1300],["2412","中華電",125],["2882","國泰金",68],["2881","富邦金",92],["2308","台達電",380],["2303","聯電",50],["1301","台塑",45],["2002","中鋼",22],["2603","長榮",190],["2609","陽明",80],["2615","萬海",85],["3711","日月光",160],["2382","廣達",290],["3231","緯創",110],["2357","華碩",520],["2379","瑞昱",500],["2891","中信金",42],["2886","兆豐金",42],["1216","統一",75],["2912","統一超",280],["0050","元大台灣50",190],["0056","元大高股息",38],["00878","國泰永續高股息",23],["00919","群益台灣精選高息",24]];
 function rng(seed){let s=seed;return()=>((s=Math.imul(s^s>>>15,2246822507)+1013904223|0)>>>0)/4294967296}
 const H={};
-function getH(s){if(H[s.code])return H[s.code];const r=rng(+s.code||7);let c=[s.close];for(let i=1;i<130;i++)c.unshift(c[0]/(1+(r()-0.495)*0.03));
+function getH(s){if(H[s.code])return H[s.code];
+ const R=REAL[s.code];if(R&&R.c&&R.c.length>70)return H[s.code]={c:R.c,o:R.o,hi:R.h,lo:R.l,vo:R.v,dates:R.d,real:true};
+ const r=rng(+s.code||7);let c=[s.close];for(let i=1;i<130;i++)c.unshift(c[0]/(1+(r()-0.495)*0.03));
  const o=c.map((v,i)=>i?c[i-1]*(1+(r()-.5)*.008):v*.995),hi=c.map((v,i)=>Math.max(v,o[i])*(1+r()*.012)),lo=c.map((v,i)=>Math.min(v,o[i])*(1-r()*.012)),vo=c.map(()=>(.5+r())*(s.vol||1e6));
  return H[s.code]={c,o,hi,lo,vo}}
 const isETF=s=>s.code.startsWith('00');
 async function load(){
+ try{REAL=await (await fetch('history.json')).json()}catch(e){REAL={}}
  try{const r=await fetch('https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL');const j=await r.json();
  stocks=j.map(x=>{const c=parseFloat(x.ClosingPrice),ch=parseFloat(x.Change);return{code:x.Code,name:x.Name,close:c,chg:ch,pct:ch/(c-ch)*100,vol:+x.TradeVolume,val:+x.TradeValue}}).filter(s=>s.close>0&&isFinite(s.pct)&&s.code.length<=6&&s.vol>0);
- if(stocks.length<50)throw 0;$('src').textContent='（資料：證交所 OpenAPI）';
- }catch(e){const r=rng(new Date().getDate()+3);stocks=demo.map(d=>{const p=(r()-0.5)*8;return{code:d[0],name:d[1],close:d[2],chg:d[2]*p/100,pct:p,vol:Math.round(r()*5e7),val:0}});$('src').textContent='（示範資料）'}
- stocks.forEach(s=>{if(!s.val)s.val=s.vol*s.close});render()}
+ if(stocks.length<50)throw 0;$('src').textContent='（今日資料：證交所 OpenAPI）';
+ }catch(e){const r=rng(new Date().getDate()+3);stocks=demo.map(d=>{const p=(r()-0.5)*8;return{code:d[0],name:d[1],close:d[2],chg:d[2]*p/100,pct:p,vol:Math.round(r()*5e7),val:0}});$('src').textContent=Object.keys(REAL).length?'（今日漲跌為示範，歷史為真實）':'（示範資料）'}
+ stocks.forEach(s=>{const R=REAL[s.code];if(R&&R.c&&R.c.length>1){const n=R.c.length-1;s.close=R.c[n];s.pct=(R.c[n]/R.c[n-1]-1)*100;s.vol=R.v[n];s.val=s.vol*s.close}if(!s.val)s.val=s.vol*s.close});render()}
 const col=p=>p>=0?`rgba(255,84,104,${Math.min(.9,.22+p/8)})`:`rgba(31,214,160,${Math.min(.9,.22-p/8)})`;
 const fm=n=>n.toLocaleString('zh-TW',{maximumFractionDigits:2});
 const pc=p=>`<span class="num ${p>=0?'up':'dn'}">${p>=0?'▲':'▼'}${Math.abs(p).toFixed(2)}%</span>`;
@@ -198,8 +215,11 @@ function updStar(){const b=$('stbtn');b.textContent=W.includes(cur.s.code)?'★'
 function toggleW(){tw(cur.s.code)}
 function analyze(code){
  selI=null;$('pop').classList.remove('s');
- const s=stocks.find(x=>x.code==code);if(!s)return;const h=getH(s),k=s.close/h.c[h.c.length-1];
+ const s=stocks.find(x=>x.code==code);if(!s)return;const h=getH(s);
+ if(h.real){const n_=h.c.length-1;s.close=h.c[n_];s.pct=(h.c[n_]/h.c[n_-1]-1)*100;s.vol=h.vo[n_]}
+ const k=h.real?1:s.close/h.c[h.c.length-1];
  const a=h.c.map(v=>v*k),o=h.o.map(v=>v*k),hi=h.hi.map(v=>v*k),lo=h.lo.map(v=>v*k),vo=h.vo;
+ rng_=Math.min(rng_,a.length-1);
  const m5=sma(a,5),m20=sma(a,20),m60=sma(a,60),R=rsi(a);
  const e12=ema(a,12),e26=ema(a,26),dif=e12.map((v,i)=>v-e26[i]),dea=ema(dif,9),hs=dif.map((v,i)=>v-dea[i]);
  const n=a.length-1;let sc=50,why=[];
@@ -209,12 +229,13 @@ function analyze(code){
  sc=Math.max(0,Math.min(100,sc));
  const lab=sc>=70?'偏多':sc>=55?'中性偏多':sc>45?'中性':sc>30?'中性偏空':'偏空';
  const vol=Math.sqrt(a.slice(-20).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/19)*100;
- cur={s,a,o,hi,lo,vo,m5,m20,m60};
+ cur={s,a,o,hi,lo,vo,m5,m20,m60,dates:h.dates};
+ $('dsrc').innerHTML=h.real?`✅ 真實歷史資料（${h.dates[0]} ～ ${h.dates[n]}）`:'⚠️ 模擬資料（此檔沒有真實歷史資料）';
  $('head').innerHTML=`<div style="font-weight:700;font-size:18px">${s.name} <span class="mu">${s.code}</span></div><div class="big">${fm(s.close)} ${pc(s.pct)}</div><div class="mu">成交量 ${fm(s.vol)} 股</div>`;
  updStar();
  $('ind').innerHTML=ic('MA5',m5[n].toFixed(2),a[n]>m5[n]?'價在上方':'價在下方',a[n]>m5[n]?'u':'d')+ic('MA20',m20[n].toFixed(2),a[n]>m20[n]?'站上月線':'跌破月線',a[n]>m20[n]?'u':'d')+ic('MA60',m60[n].toFixed(2),m20[n]>m60[n]?'中期偏多':'中期偏空',m20[n]>m60[n]?'u':'d')
   +ic('RSI(14)',R.toFixed(1),R>70?'過熱':R<30?'超賣':'正常','n')+ic('MACD 柱',hs[n].toFixed(2),hs[n]>0?'多方動能':'空方動能',hs[n]>0?'u':'d')+ic('20日波動',vol.toFixed(2)+'%',vol>2?'波動大':'波動小','n')
-  +ic('120日最高',fm(Math.max(...hi)),'壓力','n')+ic('120日最低',fm(Math.min(...lo)),'支撐','n');
+  +ic('區間最高',fm(Math.max(...hi)),'壓力','n')+ic('區間最低',fm(Math.min(...lo)),'支撐','n');
  const ang=Math.PI*(1-sc/100),x=85+70*Math.cos(ang),y=90-70*Math.sin(ang);
  $('gg').innerHTML=`<defs><linearGradient id="gd"><stop offset="0" stop-color="#1fd6a0"/><stop offset=".5" stop-color="#e6c34a"/><stop offset="1" stop-color="#ff5468"/></linearGradient></defs><path d="M15 90A70 70 0 0 1 155 90" fill="none" stroke="url(#gd)" stroke-width="12" stroke-linecap="round" opacity=".9"/><line x1="85" y1="90" x2="${x}" y2="${y}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="85" cy="90" r="6" fill="#fff"/>`;
  $('sig').innerHTML=`<div style="text-align:center"><span class="big">${sc}</span><span class="mu">/100</span> <b>${lab}</b></div>${why.map(w=>`<span class="tag">${w}</span>`).join('')}<p class="mu" style="margin-top:8px">這只是技術面規則的傾向，不是預言。買不買還要看基本面、消息與自己的風險承受度。</p>`;
@@ -235,7 +256,7 @@ function draw(){const c=$('cv'),x=c.getContext('2d'),{a,o,hi,lo,vo,m5,m20,m60}=c
  if(selI!=null&&selI>=st&&selI<a.length){const px=X(selI),py=Y(a[selI]);
   x.setLineDash([5,5]);x.strokeStyle='rgba(255,255,255,.6)';x.beginPath();x.moveTo(px,0);x.lineTo(px,c.height);x.stroke();x.beginPath();x.moveTo(0,py);x.lineTo(W_+10,py);x.stroke();x.setLineDash([]);
   x.beginPath();x.arc(px,py,6,0,7);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(px,py,12,0,7);x.strokeStyle='rgba(110,168,255,.8)';x.lineWidth=2;x.stroke();x.lineWidth=1}}
-function dayLabel(i){const back=cur.a.length-1-i;let d=new Date(),n=0;while(n<back){d.setDate(d.getDate()-1);if(d.getDay()%6)n++}return d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric',weekday:'short'})}
+function dayLabel(i){if(cur.dates)return cur.dates[i].slice(5);const back=cur.a.length-1-i;let d=new Date(),n=0;while(n<back){d.setDate(d.getDate()-1);if(d.getDay()%6)n++}return d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric',weekday:'short'})}
 function idxAt(clientX){const r=$('cv').getBoundingClientRect(),px=(clientX-r.left)/r.width*1000,N=rng_,st=cur.a.length-N;return Math.max(st,Math.min(cur.a.length-1,st+Math.floor((px-8)/930*N)))}
 function showPop(i){
  const {a,o,hi,lo,vo,m5,m20,m60}=cur,N=rng_,st=a.length-N;i=Math.max(st,Math.min(a.length-1,i));selI=i;
@@ -262,9 +283,9 @@ $('cv').addEventListener('click',e=>{if(cur)showPop(idxAt(e.clientX))});
 $('cv').addEventListener('mousemove',e=>{if(!cur)return;const i=idxAt(e.clientX);$('hv').innerHTML=`${dayLabel(i)}｜開 <b>${cur.o[i].toFixed(2)}</b> 高 <b>${cur.hi[i].toFixed(2)}</b> 低 <b>${cur.lo[i].toFixed(2)}</b> 收 <b>${cur.a[i].toFixed(2)}</b>（點一下看詳細）`});
 function renderW(){$('wl').innerHTML=W.length?`<table><tr><th>股票</th><th>價格</th><th>漲跌</th><th></th></tr>${W.map(c=>stocks.find(s=>s.code==c)).filter(Boolean).map(s=>`<tr style="cursor:pointer" onclick="pick('${s.code}')"><td>${s.name} <span class="mu">${s.code}</span></td><td class="num">${fm(s.close)}</td><td>${pc(s.pct)}</td><td><button class="star on" onclick="event.stopPropagation();tw('${s.code}')">★</button></td></tr>`).join('')}</table>`:'<p class="mu">還沒有自選股，到漲跌榜或個股頁點 ☆ 加入。</p>'}
 function cmp(){const A=stocks.find(s=>s.code==$('c1').value),B=stocks.find(s=>s.code==$('c2').value);if(!A||!B)return;
- const f=s=>{const h=getH(s),k=s.close/h.c[h.c.length-1],a=h.c.map(v=>v*k),r=(a[a.length-1]/a[a.length-61]-1)*100,rs=rsi(a),m=sma(a,20),l=Math.sqrt(a.slice(-60).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/59)*100;return{r,rs,l,above:a[a.length-1]>m[m.length-1]}};
+ const f=s=>{const h=getH(s),k=h.real?1:s.close/h.c[h.c.length-1],a=h.c.map(v=>v*k),r=(a[a.length-1]/a[a.length-61]-1)*100,rs=rsi(a),m=sma(a,20),l=Math.sqrt(a.slice(-60).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/59)*100;return{r,rs,l,above:a[a.length-1]>m[m.length-1],real:!!h.real}};
  const a=f(A),b=f(B);const row=(k,x,y)=>`<tr><td>${k}</td><td class="num">${x}</td><td class="num">${y}</td></tr>`;
- $('cmp').innerHTML=`<table><tr><th></th><th>${A.name}</th><th>${B.name}</th></tr>${row('價格',fm(A.close),fm(B.close))}${row('今日漲跌',A.pct.toFixed(2)+'%',B.pct.toFixed(2)+'%')}${row('近60日報酬',a.r.toFixed(1)+'%',b.r.toFixed(1)+'%')}${row('RSI',a.rs.toFixed(0),b.rs.toFixed(0))}${row('日波動(風險)',a.l.toFixed(2)+'%',b.l.toFixed(2)+'%')}${row('站上月線',a.above?'是':'否',b.above?'是':'否')}</table><p class="mu" style="margin-top:8px">波動越小代表走勢越穩，通常 ETF 比單一股票穩定。</p>`}
+ $('cmp').innerHTML=`<table><tr><th></th><th>${A.name}</th><th>${B.name}</th></tr>${row('價格',fm(A.close),fm(B.close))}${row('今日漲跌',A.pct.toFixed(2)+'%',B.pct.toFixed(2)+'%')}${row('近60日報酬',a.r.toFixed(1)+'%',b.r.toFixed(1)+'%')}${row('RSI',a.rs.toFixed(0),b.rs.toFixed(0))}${row('日波動(風險)',a.l.toFixed(2)+'%',b.l.toFixed(2)+'%')}${row('站上月線',a.above?'是':'否',b.above?'是':'否')}${row('資料',a.real?'真實':'模擬',b.real?'真實':'模擬')}</table><p class="mu" style="margin-top:8px">波動越小代表走勢越穩，通常 ETF 比單一股票穩定。</p>`}
 function svgCandle(){return`<svg width="420" height="230" viewBox="0 0 420 230" font-family="Noto Sans TC" font-size="13"><rect x="60" y="70" width="40" height="90" fill="#ff5468"/><line x1="80" y1="30" x2="80" y2="200" stroke="#ff5468" stroke-width="3"/><rect x="260" y="70" width="40" height="90" fill="#1fd6a0"/><line x1="280" y1="30" x2="280" y2="200" stroke="#1fd6a0" stroke-width="3"/><g fill="#eaf0ff"><text x="110" y="35">最高價</text><text x="110" y="75">收盤價</text><text x="110" y="165">開盤價</text><text x="110" y="205">最低價</text><text x="40" y="222" fill="#ff5468">紅K：收盤&gt;開盤（漲）</text><text x="240" y="222" fill="#1fd6a0">綠K：收盤&lt;開盤（跌）</text><text x="310" y="75">開盤價</text><text x="310" y="165">收盤價</text></g></svg>`}
 function svgMA(){return`<svg width="420" height="220" viewBox="0 0 420 220" font-family="Noto Sans TC" font-size="13"><path d="M10 170 C70 160 110 150 170 120 S270 60 410 40" stroke="#ffd34d" stroke-width="3" fill="none"/><path d="M10 120 C80 125 130 130 190 125 S280 100 410 85" stroke="#6ea8ff" stroke-width="3" fill="none"/><circle cx="200" cy="124" r="9" fill="none" stroke="#fff" stroke-width="2"/><text x="150" y="105" fill="#fff">黃金交叉</text><text x="14" y="195" fill="#ffd34d">短均線 MA5</text><text x="14" y="212" fill="#6ea8ff">長均線 MA20</text><text x="260" y="30" fill="#ff5468">短線上穿長線＝偏多</text></svg>`}
 function svgRSI(){return`<svg width="420" height="220" viewBox="0 0 420 220" font-family="Noto Sans TC" font-size="13"><rect x="10" y="10" width="400" height="55" fill="rgba(255,84,104,.2)"/><rect x="10" y="155" width="400" height="55" fill="rgba(31,214,160,.2)"/><text x="16" y="30" fill="#ff5468">&gt;70 過熱：小心回檔</text><text x="16" y="200" fill="#1fd6a0">&lt;30 超賣：可能反彈</text><path d="M10 120 C60 90 90 30 140 30 S200 110 240 170 S320 190 350 140 S390 80 410 90" stroke="#b57cff" stroke-width="3" fill="none"/><text x="150" y="115" fill="#8a96b8">30～70 正常區</text></svg>`}
