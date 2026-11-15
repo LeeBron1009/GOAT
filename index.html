@@ -164,7 +164,7 @@ main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
 <div class="fl" style="margin-top:12px"><select id="btsel"></select></div>
 <div style="margin-top:12px">持有門檻：分數 ≥ <b class="num" id="thv">60</b><input type="range" id="th" min="40" max="80" step="5" value="60"></div>
 <div style="margin-top:10px"><button class="btn" onclick="runBT()">▶ 執行回測</button><span class="mu"> 已含手續費與證交稅</span></div></div>
-<div id="btout"></div></section>
+<div id="btout"></div><div id="hr"></div></section>
 
 <section id="pt"><h2>🎮 模擬投資</h2>
 <div class="card"><div class="stats" id="ptsum"></div></div>
@@ -197,6 +197,20 @@ function go(p){document.querySelectorAll('section').forEach(s=>s.classList.toggl
 function goHome(){hf='all';document.querySelectorAll('#hf button').forEach(x=>x.classList.toggle('on',x.dataset.f=='all'));if(stocks.length)renderHeat();go('map')}
 document.querySelectorAll('nav .nb').forEach(b=>b.onclick=()=>go(b.dataset.p));
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1900)}
+let HR=null;
+function renderHR(){const e=$('hr');if(!e)return;
+ if(!HR){e.innerHTML='<div class="card"><h3>🎯 預測天數比較</h3><p class="mu">尚未找到 horizon_results.json，請用 train_horizons.py 產生，並和 index.html 放在同一個資料夾。</p></div>';return}
+ const P=v=>(v*100).toFixed(1)+'%',nm={logreg:'邏輯迴歸',gbm:'梯度提升樹'};
+ const rows=Object.entries(HR.horizons).flatMap(([H,s])=>Object.entries(s).map(([m,v])=>{const good=v.p_value<.05&&v.auc>.52&&v.folds_pos>=v.folds-1;
+  return `<tr><td>${H} 天</td><td>${nm[m]}</td><td class="num">${v.auc.toFixed(3)}</td><td class="num">${v.folds_pos}/${v.folds}</td><td class="num">${P(v.acc)}</td><td class="num">${P(v.base)}</td><td class="num">${v.p_value.toFixed(3)}</td><td>${good?'🟡 有點訊號':'⚪ 不明顯'}</td></tr>`})).join('');
+ const hi=Object.entries(HR.horizons).flatMap(([H,s])=>Object.entries(s).filter(([m,v])=>v.hi_ret!=null).map(([m,v])=>`<tr><td>${H} 天</td><td>${nm[m]}</td><td class="num">${v.hi_n}</td><td class="num ${cc(v.hi_ret)}">${(v.hi_ret*100).toFixed(2)}%</td><td class="num">${(v.all_ret*100).toFixed(2)}%</td><td>${(v.hi_ret-v.all_ret-v.cost>0)?'✅ 超過成本':'❌ 被成本吃掉'}</td></tr>`)).join('');
+ e.innerHTML=`<div class="card"><h3>🎯 預測天數比較（走動式驗證 ${HR.meta.folds} 折）</h3>
+ <div class="tip">📝 ${HR.verdict}</div>
+ <div class="tw"><table><tr><th>預測</th><th>模型</th><th>AUC</th><th>AUC&gt;0.5 的折數</th><th>準確率</th><th>基準</th><th>p 值</th><th>判斷</th></tr>${rows}</table></div>
+ <p class="mu" style="margin-top:6px">AUC 0.5＝丟硬幣。準確率要明顯高於基準、p 值小於 0.05、而且多數折都大於 0.5，才算有點訊號。</p></div>
+ <div class="card"><h3>💰 高信心訊號（機率 ≥ ${HR.meta.thr}）的實際報酬</h3>
+ <div class="tw"><table><tr><th>預測</th><th>模型</th><th>次數</th><th>高信心平均報酬</th><th>全部平均</th><th>扣成本後</th></tr>${hi}</table></div>
+ <p class="mu" style="margin-top:6px">高信心的報酬要比「全部平均」高，而且差距超過來回交易成本（約 0.43%），才有實用價值。</p></div>`}
 let REAL={},stocks=[],W=JSON.parse(localStorage.getItem('w')||'["2330","0050"]'),hf='all',topN=10,ctype='k',showM=true,rng_=120,RW=120,cur=null,selI=null;
 const demo=[["2330","台積電",2350],["2317","鴻海",210],["2454","聯發科",1300],["2412","中華電",125],["2882","國泰金",68],["2881","富邦金",92],["2308","台達電",380],["2303","聯電",50],["1301","台塑",45],["2002","中鋼",22],["2603","長榮",190],["2609","陽明",80],["2615","萬海",85],["3711","日月光",160],["2382","廣達",290],["3231","緯創",110],["2357","華碩",520],["2379","瑞昱",500],["2891","中信金",42],["2886","兆豐金",42],["1216","統一",75],["2912","統一超",280],["0050","元大台灣50",190],["0056","元大高股息",38],["00878","國泰永續高股息",23],["00919","群益台灣精選高息",24]];
 function rng(seed){let s=seed;return()=>((s=Math.imul(s^s>>>15,2246822507)+1013904223|0)>>>0)/4294967296}
@@ -209,6 +223,8 @@ function getH(s){if(H[s.code])return H[s.code];
 const isETF=s=>s.code.startsWith('00');
 async function load(){
  try{REAL=await (await fetch('history.json')).json()}catch(e){REAL={}}
+ try{HR=await (await fetch('horizon_results.json')).json()}catch(e){HR=null}
+ renderHR();
  try{const r=await fetch('https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL');const j=await r.json();
  stocks=j.map(x=>{const c=parseFloat(x.ClosingPrice),ch=parseFloat(x.Change);return{code:x.Code,name:x.Name,close:c,chg:ch,pct:ch/(c-ch)*100,vol:+x.TradeVolume,val:+x.TradeValue}}).filter(s=>s.close>0&&isFinite(s.pct)&&s.code.length<=6&&s.vol>0);
  if(stocks.length<50)throw 0;$('src').textContent='（今日資料：證交所 OpenAPI）';
@@ -276,6 +292,8 @@ function analyze(code){
  const ang=Math.PI*(1-sc/100),x=85+70*Math.cos(ang),y=90-70*Math.sin(ang);
  $('gg').innerHTML=`<defs><linearGradient id="gd"><stop offset="0" stop-color="#1fd6a0"/><stop offset=".5" stop-color="#e6c34a"/><stop offset="1" stop-color="#ff5468"/></linearGradient></defs><path d="M15 90A70 70 0 0 1 155 90" fill="none" stroke="url(#gd)" stroke-width="12" stroke-linecap="round" opacity=".9"/><line x1="85" y1="90" x2="${x}" y2="${y}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="85" cy="90" r="6" fill="#fff"/>`;
  $('sig').innerHTML=`<div style="text-align:center"><span class="big">${sc}</span><span class="mu">/100</span> <b>${lab}</b></div>${why.map(w=>`<span class="tag">${w}</span>`).join('')}<p class="mu" style="margin:8px 0">這只是技術面規則的傾向，不是預言。買不買還要看基本面、消息與自己的風險承受度。</p>`;
+ const HL=HR&&HR.latest&&HR.latest[s.code];
+ if(HL)$('sig').innerHTML+=`<div class="tip">🤖 模型上漲機率（資料到 ${HL.date}）<br>隔天：<b class="num">${(HL['1'].logreg*100).toFixed(1)}%</b>　5 天後：<b class="num">${(HL['5'].logreg*100).toFixed(1)}%</b>　10 天後：<b class="num">${(HL['10'].logreg*100).toFixed(1)}%</b><br><span class="mu">越接近 50% 代表模型越沒把握，請對照回測頁的 AUC，別當成買賣依據。</span></div>`;
  const atr=a[n]*vol/100*2;
  $('sl').innerHTML=`<div class="grid"><div class="stat">停損參考<b class="dn">${(a[n]-atr*1.5).toFixed(2)}</b><span class="mu">約 -${(atr*1.5/a[n]*100).toFixed(1)}%</span></div><div class="stat">停利參考<b class="up">${(a[n]+atr*3).toFixed(2)}</b><span class="mu">風險報酬比 1:2</span></div></div>`;
  draw()}
