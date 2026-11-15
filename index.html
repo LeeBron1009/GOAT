@@ -297,13 +297,18 @@ function analyze(code){
  const s=stocks.find(x=>x.code==code);if(!s)return;const h=getH(s);
  if(h.real&&!s.live){const n_=h.c.length-1;s.close=h.c[n_];s.pct=(h.c[n_]/h.c[n_-1]-1)*100;s.vol=h.vo[n_]}
  const k=h.real?1:s.close/h.c[h.c.length-1];
- const a=h.c.map(v=>v*k),o=h.o.map(v=>v*k),hi=h.hi.map(v=>v*k),lo=h.lo.map(v=>v*k),vo=h.vo;
+ let a=h.c.map(v=>v*k),o=h.o.map(v=>v*k),hi=h.hi.map(v=>v*k),lo=h.lo.map(v=>v*k),vo=h.vo.slice(),dates=h.dates?h.dates.slice():null,liveBar=false;
+ const LV=s.live;
+ if(h.real&&LV&&LV.d&&isFinite(LV.z)){const ds=LV.d.slice(0,4)+'-'+LV.d.slice(4,6)+'-'+LV.d.slice(6,8),last=dates[dates.length-1];
+  const oo=isFinite(LV.o)?LV.o:LV.z,hh=isFinite(LV.h)?LV.h:LV.z,ll=isFinite(LV.l)?LV.l:LV.z;
+  if(ds>last){a.push(LV.z);o.push(oo);hi.push(hh);lo.push(ll);vo.push(LV.v);dates.push(ds);liveBar=true}
+  else if(ds==last){const i=a.length-1;a[i]=LV.z;o[i]=oo;hi[i]=hh;lo[i]=ll;vo[i]=LV.v;liveBar=true}}
  rng_=Math.min(RW,a.length-1);
  const P=prep(a),{m5,m20,m60,hs}=P,n=a.length-1,{sc,why,R}=scoreAt(P,n);
  const lab=sc>=70?'偏多':sc>=55?'中性偏多':sc>45?'中性':sc>30?'中性偏空':'偏空';
  const vol=Math.sqrt(a.slice(-20).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/19)*100;
  cur={s,a,o,hi,lo,vo,m5,m20,m60,dates:h.dates};
- $('dsrc').innerHTML=h.real?`✅ 真實歷史資料（${h.dates[0]} ～ ${h.dates[n]}）`:'⚠️ 模擬資料（此檔沒有真實歷史資料）';
+ $('dsrc').innerHTML=h.real?`✅ 真實歷史資料（${dates[0]} ～ ${dates[n]}）${liveBar?'　🟢 最後一根 K 棒為盤中即時資料':''}`:'⚠️ 模擬資料（此檔沒有真實歷史資料）';
  $('head').innerHTML=headHTML(s); updStar();
  $('ind').innerHTML=ic('MA5',m5[n].toFixed(2),a[n]>m5[n]?'價在上方':'價在下方',a[n]>m5[n]?'u':'d')+ic('MA20',m20[n].toFixed(2),a[n]>m20[n]?'站上月線':'跌破月線',a[n]>m20[n]?'u':'d')+ic('MA60',m60[n].toFixed(2),m20[n]>m60[n]?'中期偏多':'中期偏空',m20[n]>m60[n]?'u':'d')
   +ic('RSI(14)',R.toFixed(1),R>70?'過熱':R<30?'超賣':'正常','n')+ic('MACD 柱',hs[n].toFixed(2),hs[n]>0?'多方動能':'空方動能',hs[n]>0?'u':'d')+ic('20日波動',vol.toFixed(2)+'%',vol>2?'波動大':'波動小','n')
