@@ -121,6 +121,8 @@ main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
 #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 .big{font-size:28px}
 }
+.noanim .tile{animation:none}
+.live{display:inline-block;font:500 11px "Noto Sans TC";padding:2px 9px;border-radius:12px;background:rgba(31,214,160,.18);color:var(--dn);margin-left:8px;vertical-align:middle}
 </style></head><body>
 <div id="bg"><span></span><span></span><span></span></div>
 <nav>
@@ -211,6 +213,24 @@ function renderHR(){const e=$('hr');if(!e)return;
  <div class="card"><h3>💰 高信心訊號（機率 ≥ ${HR.meta.thr}）的實際報酬</h3>
  <div class="tw"><table><tr><th>預測</th><th>模型</th><th>次數</th><th>高信心平均報酬</th><th>全部平均</th><th>扣成本後</th></tr>${hi}</table></div>
  <p class="mu" style="margin-top:6px">高信心的報酬要比「全部平均」高，而且差距超過來回交易成本（約 0.43%），才有實用價值。</p></div>`}
+const LIVE_URL='https://stock-live.neonstudio1009.workers.dev/';
+function marketOpen(){const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'})),w=d.getDay(),m=d.getHours()*60+d.getMinutes();return w>0&&w<6&&m>=535&&m<=820}
+function headHTML(s){return `<div style="font-weight:700;font-size:18px">${s.name} <span class="mu">${s.code}</span>${s.live?`<span class="live">● 即時 ${s.live.t}</span>`:''}</div><div class="big">${fm(s.close)} ${pc(s.pct)}</div><div class="mu">成交量 ${fm(s.vol)} 股${s.live?'　（約有數秒延遲）':''}</div>`}
+async function pollLive(){
+ if(document.hidden||!marketOpen()||!stocks.length)return;
+ const top=[...stocks].sort((a,b)=>b.val-a.val).slice(0,12).map(s=>s.code);
+ const codes=[...new Set([cur?cur.s.code:null,...W,...top].filter(Boolean))].slice(0,30);
+ try{const r=await fetch(LIVE_URL+'?codes='+codes.join(','));const j=await r.json();
+  (j.msgArray||[]).forEach(m=>{const z=parseFloat(m.z),y=parseFloat(m.y),s=stocks.find(x=>x.code==m.c);
+   if(s&&isFinite(z)&&isFinite(y)&&y>0){s.close=z;s.pct=(z/y-1)*100;if(+m.v)s.vol=+m.v*1000;s.val=s.vol*s.close;s.live={t:m.t||''}}});
+  const on=id=>$(id).classList.contains('on');
+  document.body.classList.add('noanim');
+  if(on('map')){renderHeat()}if(on('rank'))renderRank();if(on('watch'))renderW();if(on('pt'))ptRender();
+  if(on('ana')&&cur){cur.s=stocks.find(x=>x.code==cur.s.code)||cur.s;$('head').innerHTML=headHTML(cur.s)}
+  $('tk').innerHTML=[...stocks].sort((a,b)=>b.val-a.val).slice(0,25).map(s=>`<span>${s.name} <b class="num">${fm(s.close)}</b> ${pc(s.pct)}</span>`).join('');
+ }catch(e){}
+}
+setInterval(pollLive,7000);
 let REAL={},stocks=[],W=JSON.parse(localStorage.getItem('w')||'["2330","0050"]'),hf='all',topN=10,ctype='k',showM=true,rng_=120,RW=120,cur=null,selI=null;
 const demo=[["2330","台積電",2350],["2317","鴻海",210],["2454","聯發科",1300],["2412","中華電",125],["2882","國泰金",68],["2881","富邦金",92],["2308","台達電",380],["2303","聯電",50],["1301","台塑",45],["2002","中鋼",22],["2603","長榮",190],["2609","陽明",80],["2615","萬海",85],["3711","日月光",160],["2382","廣達",290],["3231","緯創",110],["2357","華碩",520],["2379","瑞昱",500],["2891","中信金",42],["2886","兆豐金",42],["1216","統一",75],["2912","統一超",280],["0050","元大台灣50",190],["0056","元大高股息",38],["00878","國泰永續高股息",23],["00919","群益台灣精選高息",24]];
 function rng(seed){let s=seed;return()=>((s=Math.imul(s^s>>>15,2246822507)+1013904223|0)>>>0)/4294967296}
@@ -275,7 +295,7 @@ function scoreAt(P,i){const{a,m5,m20,m60,hs}=P,R=rsiAt(a,i);let sc=50,why=[];
 function analyze(code){
  selI=null;$('pop').classList.remove('s');
  const s=stocks.find(x=>x.code==code);if(!s)return;const h=getH(s);
- if(h.real){const n_=h.c.length-1;s.close=h.c[n_];s.pct=(h.c[n_]/h.c[n_-1]-1)*100;s.vol=h.vo[n_]}
+ if(h.real&&!s.live){const n_=h.c.length-1;s.close=h.c[n_];s.pct=(h.c[n_]/h.c[n_-1]-1)*100;s.vol=h.vo[n_]}
  const k=h.real?1:s.close/h.c[h.c.length-1];
  const a=h.c.map(v=>v*k),o=h.o.map(v=>v*k),hi=h.hi.map(v=>v*k),lo=h.lo.map(v=>v*k),vo=h.vo;
  rng_=Math.min(RW,a.length-1);
@@ -284,8 +304,7 @@ function analyze(code){
  const vol=Math.sqrt(a.slice(-20).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/19)*100;
  cur={s,a,o,hi,lo,vo,m5,m20,m60,dates:h.dates};
  $('dsrc').innerHTML=h.real?`✅ 真實歷史資料（${h.dates[0]} ～ ${h.dates[n]}）`:'⚠️ 模擬資料（此檔沒有真實歷史資料）';
- $('head').innerHTML=`<div style="font-weight:700;font-size:18px">${s.name} <span class="mu">${s.code}</span></div><div class="big">${fm(s.close)} ${pc(s.pct)}</div><div class="mu">成交量 ${fm(s.vol)} 股</div>`;
- updStar();
+ $('head').innerHTML=headHTML(s); updStar();
  $('ind').innerHTML=ic('MA5',m5[n].toFixed(2),a[n]>m5[n]?'價在上方':'價在下方',a[n]>m5[n]?'u':'d')+ic('MA20',m20[n].toFixed(2),a[n]>m20[n]?'站上月線':'跌破月線',a[n]>m20[n]?'u':'d')+ic('MA60',m60[n].toFixed(2),m20[n]>m60[n]?'中期偏多':'中期偏空',m20[n]>m60[n]?'u':'d')
   +ic('RSI(14)',R.toFixed(1),R>70?'過熱':R<30?'超賣':'正常','n')+ic('MACD 柱',hs[n].toFixed(2),hs[n]>0?'多方動能':'空方動能',hs[n]>0?'u':'d')+ic('20日波動',vol.toFixed(2)+'%',vol>2?'波動大':'波動小','n')
   +ic('區間最高',fm(Math.max(...hi)),'壓力','n')+ic('區間最低',fm(Math.min(...lo)),'支撐','n');
