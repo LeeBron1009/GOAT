@@ -1,32 +1,41 @@
-name: Update history.json
+name: Update data and predictions
 
 on:
   schedule:
-    - cron: "17 8 * * 1-5"   # 週一到週五，UTC 08:17（台灣 16:17，收盤後）
-  workflow_dispatch:          # 讓你可以手動按按鈕執行
+    - cron: "17 9 * * 1-5"   # 週一到週五 UTC 09:17（台灣 17:17，收盤後）
+  workflow_dispatch:          # 可以手動按按鈕執行
 
 permissions:
   contents: write
 
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install yfinance
-        run: pip install yfinance
+      - name: Install packages
+        run: pip install yfinance pandas numpy scikit-learn scipy
 
-      - name: Fetch data
+      - name: Fetch history
         run: python fetch_history.py
+
+      - name: Train models and predict
+        run: python train_horizons.py
 
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add history.json
-          git diff --staged --quiet || (git commit -m "chore: update history.json" && git push)
+          git add history.json horizon_results.json
+          git diff --staged --quiet || (git commit -m "chore: update data $(date -u +%F)" && git push)
