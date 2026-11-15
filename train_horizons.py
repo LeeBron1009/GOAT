@@ -118,6 +118,8 @@ def summarize(H, res, allp):
 
 def main():
     data = load_data()
+    if len(data) < 10:
+        raise SystemExit("資料太少，不訓練、不覆蓋舊結果")
     feats = {c: make_features(df) for c, df in data.items()}
     allf = pd.concat(feats, names=["code", "date"]).reset_index()
     res_all = {"meta": dict(stocks=len(data), folds=FOLDS, thr=THR, period=PERIOD), "horizons": {}, "latest": {}}
