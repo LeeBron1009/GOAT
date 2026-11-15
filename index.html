@@ -222,11 +222,11 @@ async function pollLive(){
  const codes=[...new Set([cur?cur.s.code:null,...W,...top].filter(Boolean))].slice(0,30);
  try{const r=await fetch(LIVE_URL+'?codes='+codes.join(','));const j=await r.json();
   (j.msgArray||[]).forEach(m=>{const z=parseFloat(m.z),y=parseFloat(m.y),s=stocks.find(x=>x.code==m.c);
-   if(s&&isFinite(z)&&isFinite(y)&&y>0){s.close=z;s.pct=(z/y-1)*100;if(+m.v)s.vol=+m.v*1000;s.val=s.vol*s.close;s.live={t:m.t||''}}});
+   if(s&&isFinite(z)&&isFinite(y)&&y>0){s.close=z;s.pct=(z/y-1)*100;if(+m.v)s.vol=+m.v*1000;s.val=s.vol*s.live={t:m.t||'',d:m.d||'',o:parseFloat(m.o),h:parseFloat(m.h),l:parseFloat(m.l),z:z,v:(+m.v||0)*1000}}});
   const on=id=>$(id).classList.contains('on');
   document.body.classList.add('noanim');
   if(on('map')){renderHeat()}if(on('rank'))renderRank();if(on('watch'))renderW();if(on('pt'))ptRender();
-  if(on('ana')&&cur){cur.s=stocks.find(x=>x.code==cur.s.code)||cur.s;$('head').innerHTML=headHTML(cur.s)}
+  if(on('ana')&&cur){const keep=selI;analyze(cur.s.code);if(keep!=null&&keep<cur.a.length)showPop(keep)}
   $('tk').innerHTML=[...stocks].sort((a,b)=>b.val-a.val).slice(0,25).map(s=>`<span>${s.name} <b class="num">${fm(s.close)}</b> ${pc(s.pct)}</span>`).join('');
  }catch(e){}
 }
@@ -307,7 +307,7 @@ function analyze(code){
  const P=prep(a),{m5,m20,m60,hs}=P,n=a.length-1,{sc,why,R}=scoreAt(P,n);
  const lab=sc>=70?'偏多':sc>=55?'中性偏多':sc>45?'中性':sc>30?'中性偏空':'偏空';
  const vol=Math.sqrt(a.slice(-20).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/19)*100;
- cur={s,a,o,hi,lo,vo,m5,m20,m60,dates:h.dates};
+ cur={s,a,o,hi,lo,vo,m5,m20,m60,dates:dates,live:liveBar};
  $('dsrc').innerHTML=h.real?`✅ 真實歷史資料（${dates[0]} ～ ${dates[n]}）${liveBar?'　🟢 最後一根 K 棒為盤中即時資料':''}`:'⚠️ 模擬資料（此檔沒有真實歷史資料）';
  $('head').innerHTML=headHTML(s); updStar();
  $('ind').innerHTML=ic('MA5',m5[n].toFixed(2),a[n]>m5[n]?'價在上方':'價在下方',a[n]>m5[n]?'u':'d')+ic('MA20',m20[n].toFixed(2),a[n]>m20[n]?'站上月線':'跌破月線',a[n]>m20[n]?'u':'d')+ic('MA60',m60[n].toFixed(2),m20[n]>m60[n]?'中期偏多':'中期偏空',m20[n]>m60[n]?'u':'d')
@@ -332,6 +332,7 @@ function draw(){const c=$('cv'),x=c.getContext('2d'),{a,o,hi,lo,vo,m5,m20,m60}=c
  else{const g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'rgba(110,168,255,.35)');g.addColorStop(1,'rgba(110,168,255,0)');x.beginPath();for(let i=st;i<a.length;i++)i==st?x.moveTo(X(i),Y(a[i])):x.lineTo(X(i),Y(a[i]));x.strokeStyle='#6ea8ff';x.lineWidth=2.5;x.stroke();x.lineTo(X(a.length-1),Hh);x.lineTo(X(st),Hh);x.fillStyle=g;x.fill()}
  if(showM)[[m5,'#ffd34d'],[m20,'#6ea8ff'],[m60,'#b57cff']].forEach(([m,cl])=>{x.beginPath();x.strokeStyle=cl;x.lineWidth=1.6;let f=0;for(let i=st;i<a.length;i++){if(m[i]==null)continue;f?x.lineTo(X(i),Y(m[i])):x.moveTo(X(i),Y(m[i]));f=1}x.stroke()});
  x.lineWidth=1;
+ if(cur.live){x.beginPath();x.arc(X(a.length-1),Y(a[a.length-1]),7,0,7);x.strokeStyle='#1fd6a0';x.lineWidth=2;x.stroke();x.lineWidth=1}
  if(selI!=null&&selI>=st&&selI<a.length){const px=X(selI),py=Y(a[selI]);
   x.setLineDash([5,5]);x.strokeStyle='rgba(255,255,255,.6)';x.beginPath();x.moveTo(px,0);x.lineTo(px,c.height);x.stroke();x.beginPath();x.moveTo(0,py);x.lineTo(W_+10,py);x.stroke();x.setLineDash([]);
   x.beginPath();x.arc(px,py,6,0,7);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(px,py,12,0,7);x.strokeStyle='rgba(110,168,255,.8)';x.lineWidth=2;x.stroke();x.lineWidth=1}}
