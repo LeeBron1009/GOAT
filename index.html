@@ -14,6 +14,7 @@
 *{box-sizing:border-box;margin:0}html{scroll-behavior:smooth;overflow-x:hidden}
 body{font-family:"Noto Sans TC",system-ui,sans-serif;background:var(--bg);color:var(--tx);display:flex;min-height:100vh;overflow-x:hidden}
 .num,.big,.tile i{font-family:"Space Grotesk",monospace;font-style:normal}
+#err{display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#7a1020;color:#fff;font:13px/1.5 monospace;padding:8px 12px;white-space:pre-wrap}
 #bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 #bg span{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;animation:fl 18s ease-in-out infinite alternate}
 #bg span:nth-child(1){width:420px;height:420px;background:#3b6cff;top:-100px;left:10%}
@@ -23,17 +24,17 @@ body{font-family:"Noto Sans TC",system-ui,sans-serif;background:var(--bg);color:
 #bg:after{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 70%);-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 70%);opacity:.5}
 nav{width:96px;background:rgba(7,11,20,.7);backdrop-filter:blur(14px);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:2px;z-index:10;overflow-y:auto}
 .logo{font-family:"Space Grotesk";font-weight:700;font-size:13px;margin-bottom:10px;letter-spacing:1px;cursor:pointer;border:0;background:none;padding:8px 10px;border-radius:12px;transition:.25s;display:flex;align-items:center;gap:5px;color:var(--tx)}
-.logo u{text-decoration:none;display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--g);box-shadow:0 0 10px #8c78ff;transition:.6s}
+.logo img{transition:.6s}
 .logo em{font-style:normal;background:var(--g);-webkit-background-clip:text;color:transparent}
 .logo:hover{background:rgba(110,168,255,.15);box-shadow:0 0 16px rgba(110,168,255,.3)}
-.logo:hover u{transform:rotate(360deg) scale(1.4)}.logo:active{transform:scale(.92)}
+.logo:hover img{transform:rotate(360deg) scale(1.2)}.logo:active{transform:scale(.92)}
 nav button.nb{background:none;border:0;color:var(--mu);width:78px;padding:9px 0;border-radius:14px;font:500 12px "Noto Sans TC";cursor:pointer;transition:.25s;flex-shrink:0}
 nav button.nb span{display:block;font-size:20px;transition:.25s}
 nav button.nb:hover{color:var(--tx)}nav button.nb:hover span{transform:translateY(-3px) scale(1.15)}
 nav button.nb.on{background:linear-gradient(135deg,rgba(110,168,255,.22),rgba(181,124,255,.22));color:#fff;box-shadow:0 0 18px rgba(110,168,255,.3)}
 .mbrand{display:none}
 main{flex:1;padding:18px 22px;max-width:1120px;margin:auto;width:100%;min-width:0}
-#tick{overflow:hidden;white-space:nowrap;border:1px solid var(--line);border-radius:12px;padding:8px 0;margin-bottom:16px;background:var(--card)}
+#tick{overflow:hidden;white-space:nowrap;border:1px solid var(--line);border-radius:12px;padding:8px 0;margin-bottom:16px;background:var(--card);min-height:38px}
 #tick div{display:inline-block;animation:mq 60s linear infinite;padding-left:100%}
 #tick:hover div{animation-play-state:paused}#tick span{margin:0 18px;font-size:13px}
 @keyframes mq{to{transform:translateX(-100%)}}
@@ -58,8 +59,10 @@ h2{font-size:24px;margin:4px 0 14px;font-weight:700}h3{margin:6px 0 10px;font-si
 .stat{padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)}.stat b{display:block;font-size:24px;font-family:"Space Grotesk"}
 .heat{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:7px}
 .tile{border-radius:12px;padding:9px;cursor:pointer;font-size:13px;min-height:70px;transition:.25s;animation:pop .5s backwards}
+.noanim .tile{animation:none}
 .tile:hover{transform:scale(1.07) rotate(-1deg);z-index:2;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .tile b{display:block}@keyframes pop{from{opacity:0;transform:scale(.7)}}
+.live{display:inline-block;font:500 11px "Noto Sans TC";padding:2px 9px;border-radius:12px;background:rgba(31,214,160,.18);color:var(--dn);margin-left:8px;vertical-align:middle}
 .row{display:flex;justify-content:space-between;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px;transition:.2s;border-radius:8px;gap:6px}
 .row:hover{background:rgba(110,168,255,.12);padding-left:12px}
 .row .rk{width:22px;color:var(--mu);font-family:"Space Grotesk"}.row .nm{flex:1;min-width:0}
@@ -121,9 +124,8 @@ main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
 #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 .big{font-size:28px}
 }
-.noanim .tile{animation:none}
-.live{display:inline-block;font:500 11px "Noto Sans TC";padding:2px 9px;border-radius:12px;background:rgba(31,214,160,.18);color:var(--dn);margin-left:8px;vertical-align:middle}
 </style></head><body>
+<div id="err"></div>
 <div id="bg"><span></span><span></span><span></span></div>
 <nav>
 <button class="logo" onclick="goHome()" title="回到首頁"><img src="icon-32.png" width="22" height="22" alt="" style="border-radius:6px"><em>COMPASS</em></button>
@@ -155,7 +157,8 @@ main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
 <section id="ana"><h2>個股分析</h2><select id="sel"></select>
 <div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><div id="head"></div>
 <div><button class="btn g" onclick="ptGo()">🎮 模擬買賣</button><button class="star" id="stbtn" style="font-size:28px" onclick="toggleW()">☆</button></div></div>
-<div class="chips" id="cf" style="margin:8px 0"><button class="on" data-c="k">🕯️ K 線</button><button data-c="l">📈 折線</button><button data-m="1" class="on">均線</button><button data-r="60">近60日</button><button data-r="120" class="on">近120日</button><button data-r="250">近250日</button><button data-r="9999">全部</button></div><div class="cw"><canvas id="cv" width="1000" height="460"></canvas><div id="pop"></div></div>
+<div class="chips" id="cf" style="margin:8px 0"><button class="on" data-c="k">🕯️ K 線</button><button data-c="l">📈 折線</button><button data-m="1" class="on">均線</button><button data-r="60">近60日</button><button data-r="120" class="on">近120日</button><button data-r="250">近250日</button><button data-r="9999">全部</button></div>
+<div class="cw"><canvas id="cv" width="1000" height="460"></canvas><div id="pop"></div></div>
 <div class="mu" id="hv" style="margin-top:6px">👆 點圖上任何位置，可看當天的詳細資料。MA5 黃／MA20 藍／MA60 紫</div><div class="mu" id="dsrc"></div></div>
 <div class="grid"><div class="card"><h3>🧭 明日傾向（規則評分）</h3><svg class="gauge" viewBox="0 0 170 100" id="gg"></svg><div id="sig"></div><button class="btn g" onclick="btGo()">🧪 這個評分準嗎？去回測</button></div>
 <div class="card"><h3>📌 技術指標</h3><div class="ind" id="ind"></div></div></div>
@@ -170,15 +173,15 @@ main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
 
 <section id="pt"><h2>🎮 模擬投資</h2>
 <div class="card"><div class="stats" id="ptsum"></div></div>
-<div class="grid"><div class="card"><h3>下單（以最新收盤價成交）</h3>
+<div class="grid"><div class="card"><h3>下單（以最新價成交）</h3>
 <select id="ptsel"></select><div id="ptpx" class="mu" style="margin:8px 0"></div>
 <input id="ptq" type="number" min="1" value="1000" inputmode="numeric">
-<div class="chips"><button onclick="$('ptq').value=100">100股</button><button onclick="$('ptq').value=1000">1張</button><button onclick="$('ptq').value=5000">5張</button></div>
+<div class="chips"><button onclick="$('ptq').value=100;ptEst()">100股</button><button onclick="$('ptq').value=1000;ptEst()">1張</button><button onclick="$('ptq').value=5000;ptEst()">5張</button></div>
 <div id="ptest" class="mu" style="margin:6px 0"></div>
 <button class="btn buy" onclick="ptTrade('buy')">買進</button><button class="btn sell" onclick="ptTrade('sell')">賣出</button></div>
 <div class="card"><h3>我的持股</h3><div class="tw" id="pthold"></div></div></div>
 <div class="card"><h3>交易紀錄</h3><div class="tw" id="ptlog"></div><button class="btn g" onclick="ptReset()" style="margin-top:10px">🔄 重設帳戶（100 萬）</button></div>
-<div class="warnbox">這是虛擬資金，成交價固定用「最新收盤價」，不會模擬滑價與盤中波動。資料存在你自己的瀏覽器裡，清除瀏覽資料會消失。</div></section>
+<div class="warnbox">這是虛擬資金，成交價固定用「最新價」，不會模擬滑價與盤中波動。資料存在你自己的瀏覽器裡，清除瀏覽資料會消失。</div></section>
 
 <section id="watch"><h2>⭐ 我的自選與比較</h2>
 <div class="card"><h3>自選清單</h3><div id="wl"></div></div>
@@ -191,47 +194,18 @@ main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
 <div class="card"><h3>手續費與損益</h3>買價<input id="b" type="number" value="100">賣價<input id="s" type="number" value="105">股數<input id="q" type="number" value="1000"><br><br>
 <label><input id="dc" type="checkbox" style="width:auto"> 券商手續費 2.8 折</label><div id="pl" style="margin-top:10px"></div></div>
 <div class="card"><h3>複利試算</h3>本金<input id="p0" type="number" value="10000">每月投入<input id="pm" type="number" value="3000">年報酬率 %<input id="pr" type="number" value="6">年數<input id="py" type="number" value="10"><div id="cp" style="margin-top:10px"></div></div></div></section>
-<p class="warn">⚠️ 本網站僅供學習，分數由簡單規則計算，不是投資建議，也不保證預測正確。回測結果是「過去」的表現，不代表未來。若標示「模擬資料」，代表沒有真實歷史資料。投資有風險。</p>
+<p class="warn">⚠️ 本網站僅供學習，分數由簡單規則計算，不是投資建議，也不保證預測正確。回測結果是「過去」的表現，不代表未來。盤中報價約有數秒以上延遲，以證交所公告為準。若標示「模擬資料」，代表沒有真實歷史資料。投資有風險。</p>
 </main><div id="toast"></div>
 <script>
 const $=id=>document.getElementById(id);
+window.addEventListener('error',e=>{const b=$('err');if(b){b.style.display='block';b.textContent='⚠ 程式錯誤：'+e.message+'（第 '+e.lineno+' 行）'}});
+window.addEventListener('unhandledrejection',e=>{const b=$('err');if(b){b.style.display='block';b.textContent='⚠ 程式錯誤：'+(e.reason&&e.reason.message||e.reason)}});
+const LIVE_URL='https://stock-live.neonstudio1009.workers.dev/';
 function go(p){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==p));document.querySelectorAll('nav .nb').forEach(b=>b.classList.toggle('on',b.dataset.p==p));scrollTo({top:0,behavior:'smooth'});if(p=='watch')renderW();if(p=='ana'&&cur)analyze($('sel').value);if(p=='pt')ptRender()}
 function goHome(){hf='all';document.querySelectorAll('#hf button').forEach(x=>x.classList.toggle('on',x.dataset.f=='all'));if(stocks.length)renderHeat();go('map')}
 document.querySelectorAll('nav .nb').forEach(b=>b.onclick=()=>go(b.dataset.p));
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1900)}
-let HR=null;
-function renderHR(){const e=$('hr');if(!e)return;
- if(!HR){e.innerHTML='<div class="card"><h3>🎯 預測天數比較</h3><p class="mu">尚未找到 horizon_results.json，請用 train_horizons.py 產生，並和 index.html 放在同一個資料夾。</p></div>';return}
- const P=v=>(v*100).toFixed(1)+'%',nm={logreg:'邏輯迴歸',gbm:'梯度提升樹'};
- const rows=Object.entries(HR.horizons).flatMap(([H,s])=>Object.entries(s).map(([m,v])=>{const good=v.p_value<.05&&v.auc>.52&&v.folds_pos>=v.folds-1;
-  return `<tr><td>${H} 天</td><td>${nm[m]}</td><td class="num">${v.auc.toFixed(3)}</td><td class="num">${v.folds_pos}/${v.folds}</td><td class="num">${P(v.acc)}</td><td class="num">${P(v.base)}</td><td class="num">${v.p_value.toFixed(3)}</td><td>${good?'🟡 有點訊號':'⚪ 不明顯'}</td></tr>`})).join('');
- const hi=Object.entries(HR.horizons).flatMap(([H,s])=>Object.entries(s).filter(([m,v])=>v.hi_ret!=null).map(([m,v])=>`<tr><td>${H} 天</td><td>${nm[m]}</td><td class="num">${v.hi_n}</td><td class="num ${cc(v.hi_ret)}">${(v.hi_ret*100).toFixed(2)}%</td><td class="num">${(v.all_ret*100).toFixed(2)}%</td><td>${(v.hi_ret-v.all_ret-v.cost>0)?'✅ 超過成本':'❌ 被成本吃掉'}</td></tr>`)).join('');
- e.innerHTML=`<div class="card"><h3>🎯 預測天數比較（走動式驗證 ${HR.meta.folds} 折）</h3>
- <div class="tip">📝 ${HR.verdict}</div>
- <div class="tw"><table><tr><th>預測</th><th>模型</th><th>AUC</th><th>AUC&gt;0.5 的折數</th><th>準確率</th><th>基準</th><th>p 值</th><th>判斷</th></tr>${rows}</table></div>
- <p class="mu" style="margin-top:6px">AUC 0.5＝丟硬幣。準確率要明顯高於基準、p 值小於 0.05、而且多數折都大於 0.5，才算有點訊號。</p></div>
- <div class="card"><h3>💰 高信心訊號（機率 ≥ ${HR.meta.thr}）的實際報酬</h3>
- <div class="tw"><table><tr><th>預測</th><th>模型</th><th>次數</th><th>高信心平均報酬</th><th>全部平均</th><th>扣成本後</th></tr>${hi}</table></div>
- <p class="mu" style="margin-top:6px">高信心的報酬要比「全部平均」高，而且差距超過來回交易成本（約 0.43%），才有實用價值。</p></div>`}
-const LIVE_URL='https://stock-live.neonstudio1009.workers.dev/';
-function marketOpen(){const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'})),w=d.getDay(),m=d.getHours()*60+d.getMinutes();return w>0&&w<6&&m>=535&&m<=820}
-function headHTML(s){return `<div style="font-weight:700;font-size:18px">${s.name} <span class="mu">${s.code}</span>${s.live?`<span class="live">● 即時 ${s.live.t}</span>`:''}</div><div class="big">${fm(s.close)} ${pc(s.pct)}</div><div class="mu">成交量 ${fm(s.vol)} 股${s.live?'　（約有數秒延遲）':''}</div>`}
-async function pollLive(){
- if(document.hidden||!marketOpen()||!stocks.length)return;
- const top=[...stocks].sort((a,b)=>b.val-a.val).slice(0,12).map(s=>s.code);
- const codes=[...new Set([cur?cur.s.code:null,...W,...top].filter(Boolean))].slice(0,30);
- try{const r=await fetch(LIVE_URL+'?codes='+codes.join(','));const j=await r.json();
-  (j.msgArray||[]).forEach(m=>{const z=parseFloat(m.z),y=parseFloat(m.y),s=stocks.find(x=>x.code==m.c);
-   if(s&&isFinite(z)&&isFinite(y)&&y>0){s.close=z;s.pct=(z/y-1)*100;if(+m.v)s.vol=+m.v*1000;s.val=s.vol*s.live={t:m.t||'',d:m.d||'',o:parseFloat(m.o),h:parseFloat(m.h),l:parseFloat(m.l),z:z,v:(+m.v||0)*1000}}});
-  const on=id=>$(id).classList.contains('on');
-  document.body.classList.add('noanim');
-  if(on('map')){renderHeat()}if(on('rank'))renderRank();if(on('watch'))renderW();if(on('pt'))ptRender();
-  if(on('ana')&&cur){const keep=selI;analyze(cur.s.code);if(keep!=null&&keep<cur.a.length)showPop(keep)}
-  $('tk').innerHTML=[...stocks].sort((a,b)=>b.val-a.val).slice(0,25).map(s=>`<span>${s.name} <b class="num">${fm(s.close)}</b> ${pc(s.pct)}</span>`).join('');
- }catch(e){}
-}
-setInterval(pollLive,7000);
-let REAL={},stocks=[],W=JSON.parse(localStorage.getItem('w')||'["2330","0050"]'),hf='all',topN=10,ctype='k',showM=true,rng_=120,RW=120,cur=null,selI=null;
+let REAL={},HR=null,stocks=[],W=JSON.parse(localStorage.getItem('w')||'["2330","0050"]'),hf='all',topN=10,ctype='k',showM=true,rng_=120,RW=120,cur=null,selI=null;
 const demo=[["2330","台積電",2350],["2317","鴻海",210],["2454","聯發科",1300],["2412","中華電",125],["2882","國泰金",68],["2881","富邦金",92],["2308","台達電",380],["2303","聯電",50],["1301","台塑",45],["2002","中鋼",22],["2603","長榮",190],["2609","陽明",80],["2615","萬海",85],["3711","日月光",160],["2382","廣達",290],["3231","緯創",110],["2357","華碩",520],["2379","瑞昱",500],["2891","中信金",42],["2886","兆豐金",42],["1216","統一",75],["2912","統一超",280],["0050","元大台灣50",190],["0056","元大高股息",38],["00878","國泰永續高股息",23],["00919","群益台灣精選高息",24]];
 function rng(seed){let s=seed;return()=>((s=Math.imul(s^s>>>15,2246822507)+1013904223|0)>>>0)/4294967296}
 const H={};
@@ -241,15 +215,16 @@ function getH(s){if(H[s.code])return H[s.code];
  const o=c.map((v,i)=>i?c[i-1]*(1+(r()-.5)*.008):v*.995),hi=c.map((v,i)=>Math.max(v,o[i])*(1+r()*.012)),lo=c.map((v,i)=>Math.min(v,o[i])*(1-r()*.012)),vo=c.map(()=>(.5+r())*(s.vol||1e6));
  return H[s.code]={c,o,hi,lo,vo}}
 const isETF=s=>s.code.startsWith('00');
+async function getJSON(u){try{const r=await fetch(u);if(!r.ok)return null;return await r.json()}catch(e){return null}}
 async function load(){
- try{REAL=await (await fetch('history.json')).json()}catch(e){REAL={}}
- try{HR=await (await fetch('horizon_results.json')).json()}catch(e){HR=null}
- renderHR();
+ REAL=(await getJSON('history.json'))||{};
+ HR=await getJSON('horizon_results.json');renderHR();
  try{const r=await fetch('https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL');const j=await r.json();
  stocks=j.map(x=>{const c=parseFloat(x.ClosingPrice),ch=parseFloat(x.Change);return{code:x.Code,name:x.Name,close:c,chg:ch,pct:ch/(c-ch)*100,vol:+x.TradeVolume,val:+x.TradeValue}}).filter(s=>s.close>0&&isFinite(s.pct)&&s.code.length<=6&&s.vol>0);
  if(stocks.length<50)throw 0;$('src').textContent='（今日資料：證交所 OpenAPI）';
  }catch(e){const r=rng(new Date().getDate()+3);stocks=demo.map(d=>{const p=(r()-0.5)*8;return{code:d[0],name:d[1],close:d[2],chg:d[2]*p/100,pct:p,vol:Math.round(r()*5e7),val:0}});$('src').textContent=Object.keys(REAL).length?'（今日漲跌為示範，歷史為真實）':'（示範資料）'}
- stocks.forEach(s=>{const R=REAL[s.code];if(R&&R.c&&R.c.length>1){const n=R.c.length-1;s.close=R.c[n];s.pct=(R.c[n]/R.c[n-1]-1)*100;s.vol=R.v[n];s.val=s.vol*s.close}if(!s.val)s.val=s.vol*s.close});render()}
+ stocks.forEach(s=>{const R=REAL[s.code];if(R&&R.c&&R.c.length>1){const n=R.c.length-1;s.close=R.c[n];s.pct=(R.c[n]/R.c[n-1]-1)*100;s.vol=R.v[n];s.val=s.vol*s.close}if(!s.val)s.val=s.vol*s.close});
+ render();pollLive()}
 const col=p=>p>=0?`rgba(255,84,104,${Math.min(.9,.22+p/8)})`:`rgba(31,214,160,${Math.min(.9,.22-p/8)})`;
 const fm=n=>n.toLocaleString('zh-TW',{maximumFractionDigits:2});
 const pc=p=>`<span class="num ${p>=0?'up':'dn'}">${p>=0?'▲':'▼'}${Math.abs(p).toFixed(2)}%</span>`;
@@ -260,12 +235,12 @@ function tw(c){W.includes(c)?W=W.filter(x=>x!=c):W.push(c);localStorage.setItem(
 function renderRank(){const liq=stocks.filter(s=>s.val>1e7);list('topU',[...liq].sort((a,b)=>b.pct-a.pct).slice(0,topN));list('topD',[...liq].sort((a,b)=>a.pct-b.pct).slice(0,topN));list('topV',[...stocks].sort((a,b)=>b.vol-a.vol).slice(0,topN))}
 function renderHeat(){let t=[...stocks].sort((a,b)=>b.val-a.val);if(hf=='up')t=t.filter(s=>s.pct>0);if(hf=='dn')t=t.filter(s=>s.pct<0);if(hf=='etf')t=t.filter(isETF);t=t.slice(0,60);
  $('heat').innerHTML=t.map((s,i)=>`<div class="tile" style="background:${col(s.pct)};animation-delay:${i*12}ms" onclick="pick('${s.code}')"><b>${s.name}</b><span style="opacity:.75">${s.code}</span><br><i>${s.pct.toFixed(2)}%</i></div>`).join('')}
+function renderTick(){$('tk').innerHTML=[...stocks].sort((a,b)=>b.val-a.val).slice(0,25).map(s=>`<span>${s.name} <b class="num">${fm(s.close)}</b> ${pc(s.pct)}</span>`).join('')}
 function render(){
  const up=stocks.filter(s=>s.pct>0).length,dn=stocks.filter(s=>s.pct<0).length,avg=stocks.reduce((a,s)=>a+s.pct,0)/stocks.length;
  $('stats').innerHTML=`<div class="stat"><span class="mu">上漲家數</span><b class="up" id="s1">0</b></div><div class="stat"><span class="mu">下跌家數</span><b class="dn" id="s2">0</b></div><div class="stat"><span class="mu">平均漲跌</span><b id="s3" class="${avg>=0?'up':'dn'}">0</b></div><div class="stat"><span class="mu">檔數</span><b id="s4">0</b></div>`;
  count($('s1'),up);count($('s2'),dn);count($('s3'),avg,2,'%');count($('s4'),stocks.length);
- $('tk').innerHTML=[...stocks].sort((a,b)=>b.val-a.val).slice(0,25).map(s=>`<span>${s.name} <b class="num">${fm(s.close)}</b> ${pc(s.pct)}</span>`).join('');
- renderHeat();renderRank();
+ renderTick();renderHeat();renderRank();
  const opts=[...stocks].sort((a,b)=>a.code.localeCompare(b.code)).map(s=>`<option value="${s.code}">${s.code} ${s.name}</option>`).join('');
  ['sel','c1','c2','ptsel'].forEach(i=>$(i).innerHTML=opts);
  $('btsel').innerHTML='<option value="ALL">📦 全部股票合併統計（樣本最多）</option>'+opts;
@@ -285,7 +260,7 @@ function rsi(a,n=14){return rsiAt(a,a.length-1,n)}
 function ic(k,v,t,c){return`<div class="ic"><div class="k">${k}</div><div class="v">${v}</div><span class="tg ${c}">${t}</span></div>`}
 function updStar(){const b=$('stbtn');b.textContent=W.includes(cur.s.code)?'★':'☆';b.classList.toggle('on',W.includes(cur.s.code))}
 function toggleW(){tw(cur.s.code)}
-/* 評分函式（個股頁與回測共用） */
+function headHTML(s){return `<div style="font-weight:700;font-size:18px">${s.name} <span class="mu">${s.code}</span>${s.live?`<span class="live">● 即時 ${s.live.t}</span>`:''}</div><div class="big">${fm(s.close)} ${pc(s.pct)}</div><div class="mu">成交量 ${fm(s.vol)} 股${s.live?'　（約有數秒延遲）':''}</div>`}
 function prep(a){const m5=sma(a,5),m20=sma(a,20),m60=sma(a,60),e12=ema(a,12),e26=ema(a,26),dif=e12.map((v,i)=>v-e26[i]),dea=ema(dif,9),hs=dif.map((v,i)=>v-dea[i]);return{a,m5,m20,m60,hs}}
 function scoreAt(P,i){const{a,m5,m20,m60,hs}=P,R=rsiAt(a,i);let sc=50,why=[];
  const T=(c,p,u,d)=>{if(c){sc+=p;why.push(u+` (+${p})`)}else{sc-=p;why.push(d+` (-${p})`)}};
@@ -309,7 +284,8 @@ function analyze(code){
  const vol=Math.sqrt(a.slice(-20).map((v,i,x)=>i?Math.pow(v/x[i-1]-1,2):0).reduce((x,y)=>x+y)/19)*100;
  cur={s,a,o,hi,lo,vo,m5,m20,m60,dates:dates,live:liveBar};
  $('dsrc').innerHTML=h.real?`✅ 真實歷史資料（${dates[0]} ～ ${dates[n]}）${liveBar?'　🟢 最後一根 K 棒為盤中即時資料':''}`:'⚠️ 模擬資料（此檔沒有真實歷史資料）';
- $('head').innerHTML=headHTML(s); updStar();
+ $('head').innerHTML=headHTML(s);
+ updStar();
  $('ind').innerHTML=ic('MA5',m5[n].toFixed(2),a[n]>m5[n]?'價在上方':'價在下方',a[n]>m5[n]?'u':'d')+ic('MA20',m20[n].toFixed(2),a[n]>m20[n]?'站上月線':'跌破月線',a[n]>m20[n]?'u':'d')+ic('MA60',m60[n].toFixed(2),m20[n]>m60[n]?'中期偏多':'中期偏空',m20[n]>m60[n]?'u':'d')
   +ic('RSI(14)',R.toFixed(1),R>70?'過熱':R<30?'超賣':'正常','n')+ic('MACD 柱',hs[n].toFixed(2),hs[n]>0?'多方動能':'空方動能',hs[n]>0?'u':'d')+ic('20日波動',vol.toFixed(2)+'%',vol>2?'波動大':'波動小','n')
   +ic('區間最高',fm(Math.max(...hi)),'壓力','n')+ic('區間最低',fm(Math.min(...lo)),'支撐','n');
@@ -317,7 +293,7 @@ function analyze(code){
  $('gg').innerHTML=`<defs><linearGradient id="gd"><stop offset="0" stop-color="#1fd6a0"/><stop offset=".5" stop-color="#e6c34a"/><stop offset="1" stop-color="#ff5468"/></linearGradient></defs><path d="M15 90A70 70 0 0 1 155 90" fill="none" stroke="url(#gd)" stroke-width="12" stroke-linecap="round" opacity=".9"/><line x1="85" y1="90" x2="${x}" y2="${y}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="85" cy="90" r="6" fill="#fff"/>`;
  $('sig').innerHTML=`<div style="text-align:center"><span class="big">${sc}</span><span class="mu">/100</span> <b>${lab}</b></div>${why.map(w=>`<span class="tag">${w}</span>`).join('')}<p class="mu" style="margin:8px 0">這只是技術面規則的傾向，不是預言。買不買還要看基本面、消息與自己的風險承受度。</p>`;
  const HL=HR&&HR.latest&&HR.latest[s.code];
- if(HL)$('sig').innerHTML+=`<div class="tip">🤖 模型上漲機率（資料到 ${HL.date}）<br>隔天：<b class="num">${(HL['1'].logreg*100).toFixed(1)}%</b>　5 天後：<b class="num">${(HL['5'].logreg*100).toFixed(1)}%</b>　10 天後：<b class="num">${(HL['10'].logreg*100).toFixed(1)}%</b><br><span class="mu">越接近 50% 代表模型越沒把握，請對照回測頁的 AUC，別當成買賣依據。</span></div>`;
+ if(HL&&HL['1']&&HL['5']&&HL['10'])$('sig').innerHTML+=`<div class="tip">🤖 模型上漲機率（資料到 ${HL.date}）<br>隔天：<b class="num">${(HL['1'].logreg*100).toFixed(1)}%</b>　5 天後：<b class="num">${(HL['5'].logreg*100).toFixed(1)}%</b>　10 天後：<b class="num">${(HL['10'].logreg*100).toFixed(1)}%</b><br><span class="mu">越接近 50% 代表模型越沒把握，請對照回測頁的 AUC，別當成買賣依據。</span></div>`;
  const atr=a[n]*vol/100*2;
  $('sl').innerHTML=`<div class="grid"><div class="stat">停損參考<b class="dn">${(a[n]-atr*1.5).toFixed(2)}</b><span class="mu">約 -${(atr*1.5/a[n]*100).toFixed(1)}%</span></div><div class="stat">停利參考<b class="up">${(a[n]+atr*3).toFixed(2)}</b><span class="mu">風險報酬比 1:2</span></div></div>`;
  draw()}
@@ -367,6 +343,24 @@ function cmp(){const A=stocks.find(s=>s.code==$('c1').value),B=stocks.find(s=>s.
  const a=f(A),b=f(B);const row=(k,x,y)=>`<tr><td>${k}</td><td class="num">${x}</td><td class="num">${y}</td></tr>`;
  $('cmp').innerHTML=`<table><tr><th></th><th>${A.name}</th><th>${B.name}</th></tr>${row('價格',fm(A.close),fm(B.close))}${row('今日漲跌',A.pct.toFixed(2)+'%',B.pct.toFixed(2)+'%')}${row('近60日報酬',a.r.toFixed(1)+'%',b.r.toFixed(1)+'%')}${row('RSI',a.rs.toFixed(0),b.rs.toFixed(0))}${row('日波動(風險)',a.l.toFixed(2)+'%',b.l.toFixed(2)+'%')}${row('站上月線',a.above?'是':'否',b.above?'是':'否')}${row('資料',a.real?'真實':'模擬',b.real?'真實':'模擬')}</table><p class="mu" style="margin-top:8px">波動越小代表走勢越穩，通常 ETF 比單一股票穩定。</p>`}
 
+/* ===== 即時更新 ===== */
+function marketOpen(){const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'})),w=d.getDay(),m=d.getHours()*60+d.getMinutes();return w>0&&w<6&&m>=535&&m<=820}
+async function pollLive(){
+ if(document.hidden||!marketOpen()||!stocks.length)return;
+ const top=[...stocks].sort((a,b)=>b.val-a.val).slice(0,12).map(s=>s.code);
+ const codes=[...new Set([cur?cur.s.code:null,...W,...top].filter(Boolean))].slice(0,30);
+ try{const r=await fetch(LIVE_URL+'?codes='+codes.join(','));const j=await r.json();
+  (j.msgArray||[]).forEach(m=>{const z=parseFloat(m.z),y=parseFloat(m.y),s=stocks.find(x=>x.code==m.c);
+   if(s&&isFinite(z)&&isFinite(y)&&y>0){s.close=z;s.pct=(z/y-1)*100;if(+m.v)s.vol=+m.v*1000;s.val=s.vol*s.close;s.live={t:m.t||'',d:m.d||'',o:parseFloat(m.o),h:parseFloat(m.h),l:parseFloat(m.l),z:z,v:(+m.v||0)*1000}}});
+  const on=id=>$(id).classList.contains('on');
+  document.body.classList.add('noanim');
+  if(on('map'))renderHeat();if(on('rank'))renderRank();if(on('watch'))renderW();if(on('pt'))ptRender();
+  if(on('ana')&&cur){const keep=selI;analyze(cur.s.code);if(keep!=null&&keep<cur.a.length)showPop(keep)}
+  renderTick();
+ }catch(e){}
+}
+setInterval(pollLive,7000);
+
 /* ===== 回測 ===== */
 function btGo(){if(cur)$('btsel').value=cur.s.code;go('bt');runBT()}
 $('th').oninput=()=>$('thv').textContent=$('th').value;
@@ -375,7 +369,7 @@ function btOne(s,T){const h=getH(s),k=h.real?1:s.close/h.c[h.c.length-1],a=h.c.m
  const sc=[],ret=[];for(let i=60;i<n-1;i++){sc.push(scoreAt(P,i).sc);ret.push(a[i+1]/a[i]-1)}
  const buy=0.001425,sell=0.001425+(etf?0.001:0.003);let pos=0;const strat=[],bh=ret.slice();
  for(let j=0;j<sc.length;j++){const np=sc[j]>=T?1:0;let r=np?ret[j]:0;if(np&&!pos)r-=buy;if(!np&&pos)r-=sell;strat.push(r);pos=np}
- const days=sc.length;return{sc,ret,strat,bh,real:!!h.real,days,dates:h.dates?h.dates.slice(61):null}}
+ return{sc,ret,strat,bh,real:!!h.real,days:sc.length}}
 function eq(arr){let v=1,p=1,dd=0;const e=[1];arr.forEach(r=>{v*=1+r;p=Math.max(p,v);dd=Math.min(dd,v/p-1);e.push(v)});return{e,tot:v-1,dd}}
 function runBT(){
  const T=+$('th').value,sel=$('btsel').value;let list=sel=='ALL'?stocks.filter(s=>REAL[s.code]):[stocks.find(s=>s.code==sel)];
@@ -384,14 +378,14 @@ function runBT(){
  const res=list.map(s=>({s,r:btOne(s,T)}));if(!res.length)return;
  const bk=BUCKETS.map(()=>({n:0,up:0,sum:0}));let allN=0,allUp=0;
  res.forEach(({r})=>r.sc.forEach((sc,j)=>{const b=BUCKETS.findIndex(x=>sc>=x[0]&&sc<x[1]);bk[b].n++;allN++;if(r.ret[j]>0){bk[b].up++;allUp++}bk[b].sum+=r.ret[j]}));
- const L=Math.min(...res.map(x=>x.r.strat.length)),avg=k=>Array.from({length:L},(_,j)=>res.reduce((a,x)=>a+x.r[k][x.r[k].length-L+j],0)/res.length);
+ const L_=Math.min(...res.map(x=>x.r.strat.length)),avg=k=>Array.from({length:L_},(_,j)=>res.reduce((a,x)=>a+x.r[k][x.r[k].length-L_+j],0)/res.length);
  const S=eq(avg('strat')),B=eq(avg('bh'));
  const tr=res.reduce((a,x)=>{let p=0,c=0;x.r.sc.forEach(v=>{const np=v>=T?1:0;if(np&&!p)c++;p=np});return a+c},0);
  const hold=res.reduce((a,x)=>a+x.r.sc.filter(v=>v>=T).length,0)/res.reduce((a,x)=>a+x.r.sc.length,0);
  const base=allUp/allN*100;
- const hi=bk[4],lo=bk[0],hiR=hi.n?hi.up/hi.n*100:null,loR=lo.n?lo.up/lo.n*100:null;
+ const hi=bk[4],hiR=hi.n?hi.up/hi.n*100:null;
  let verdict='';
- if(allN<300)verdict+=`樣本只有 ${allN} 天，太少，結果很可能只是運氣。想更可靠，請把 fetch_history.py 的 DAYS 改成 750 以上。`;
+ if(allN<300)verdict+=`樣本只有 ${allN} 天，太少，結果很可能只是運氣。`;
  if(hiR!=null&&hi.n>=20){const d=hiR-base;verdict+=` 高分（70+）隔天上漲機率 ${hiR.toFixed(1)}%，整體平均是 ${base.toFixed(1)}%，差 ${d>=0?'+':''}${d.toFixed(1)} 個百分點。${Math.abs(d)<5?'差距很小，幾乎看不出評分有預測力。':d>0?'評分有一點幫助，但還要看樣本與成本。':'高分反而更不容易漲。'}`}
  else verdict+=' 高分（70+）的天數太少，無法判斷。';
  verdict+=` 策略報酬 ${(S.tot*100).toFixed(1)}%，一直持有 ${(B.tot*100).toFixed(1)}%。`;
@@ -416,6 +410,21 @@ function runBT(){
  x.beginPath();x.strokeStyle='rgba(255,255,255,.35)';x.setLineDash([4,4]);x.moveTo(10,Y(1));x.lineTo(c.width-55,Y(1));x.stroke();x.setLineDash([]);
  [[B.e,'#ffd34d'],[S.e,'#6ea8ff']].forEach(([e,cl])=>{x.beginPath();x.strokeStyle=cl;x.lineWidth=2.5;e.forEach((v,i)=>i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v)));x.stroke()})}
 
+/* ===== 預測天數比較（horizon_results.json） ===== */
+function renderHR(){const e=$('hr');if(!e)return;
+ if(!HR||!HR.horizons){e.innerHTML='<div class="card"><h3>🎯 預測天數比較</h3><p class="mu">尚未找到 horizon_results.json，請用 train_horizons.py 產生，並和 index.html 放在同一個資料夾。</p></div>';return}
+ const P=v=>(v*100).toFixed(1)+'%',nm={logreg:'邏輯迴歸',gbm:'梯度提升樹'};
+ const rows=Object.entries(HR.horizons).flatMap(([H,s])=>Object.entries(s).map(([m,v])=>{const good=v.p_value<.05&&v.auc>.52&&v.folds_pos>=v.folds-1;
+  return `<tr><td>${H} 天</td><td>${nm[m]||m}</td><td class="num">${v.auc.toFixed(3)}</td><td class="num">${v.folds_pos}/${v.folds}</td><td class="num">${P(v.acc)}</td><td class="num">${P(v.base)}</td><td class="num">${v.p_value.toFixed(3)}</td><td>${good?'🟡 有點訊號':'⚪ 不明顯'}</td></tr>`})).join('');
+ const hi=Object.entries(HR.horizons).flatMap(([H,s])=>Object.entries(s).filter(([m,v])=>v.hi_ret!=null).map(([m,v])=>`<tr><td>${H} 天</td><td>${nm[m]||m}</td><td class="num">${v.hi_n}</td><td class="num ${cc(v.hi_ret)}">${(v.hi_ret*100).toFixed(2)}%</td><td class="num">${(v.all_ret*100).toFixed(2)}%</td><td>${(v.hi_ret-v.all_ret-v.cost>0)?'✅ 超過成本':'❌ 被成本吃掉'}</td></tr>`)).join('');
+ e.innerHTML=`<div class="card"><h3>🎯 預測天數比較（走動式驗證 ${HR.meta.folds} 折）</h3>
+ <div class="tip">📝 ${HR.verdict}</div>
+ <div class="tw"><table><tr><th>預測</th><th>模型</th><th>AUC</th><th>AUC&gt;0.5 的折數</th><th>準確率</th><th>基準</th><th>p 值</th><th>判斷</th></tr>${rows}</table></div>
+ <p class="mu" style="margin-top:6px">AUC 0.5＝丟硬幣。準確率要明顯高於基準、p 值小於 0.05、而且多數折都大於 0.5，才算有點訊號。</p></div>
+ <div class="card"><h3>💰 高信心訊號（機率 ≥ ${HR.meta.thr}）的實際報酬</h3>
+ <div class="tw"><table><tr><th>預測</th><th>模型</th><th>次數</th><th>高信心平均報酬</th><th>全部平均</th><th>扣成本後</th></tr>${hi}</table></div>
+ <p class="mu" style="margin-top:6px">高信心的報酬要比「全部平均」高，而且差距超過來回交易成本（約 0.43%），才有實用價值。</p></div>`}
+
 /* ===== 模擬投資 ===== */
 let PT=JSON.parse(localStorage.getItem('pt')||'null')||{cash:1000000,pos:{},log:[]};
 const ptSave=()=>localStorage.setItem('pt',JSON.stringify(PT));
@@ -433,7 +442,7 @@ function ptTrade(side){const s=ptStock(),q=Math.floor(+$('ptq').value);if(!s)ret
 function ptSellAll(code){$('ptsel').value=code;$('ptq').value=PT.pos[code].q;ptRender();ptTrade('sell')}
 function ptReset(){if(confirm('確定要重設嗎？所有持股與紀錄會清除。')){PT={cash:1000000,pos:{},log:[]};ptSave();ptRender()}}
 function ptRender(){if(!stocks.length)return;const s=ptStock();if(!s)return;
- $('ptpx').innerHTML=`${s.name} 最新收盤 <b class="num">${fm(s.close)}</b> ${pc(s.pct)}　持有 <b>${(PT.pos[s.code]||{q:0}).q.toLocaleString()}</b> 股`;
+ $('ptpx').innerHTML=`${s.name} 最新價 <b class="num">${fm(s.close)}</b> ${pc(s.pct)}${s.live?'<span class="live">● 即時</span>':''}　持有 <b>${(PT.pos[s.code]||{q:0}).q.toLocaleString()}</b> 股`;
  let mv=0;Object.entries(PT.pos).forEach(([c,p])=>{const st=stocks.find(x=>x.code==c);if(st)mv+=st.close*p.q});
  const tot=PT.cash+mv,pl=tot-1000000;
  $('ptsum').innerHTML=`<div class="stat"><span class="mu">總資產</span><b>${fm(Math.round(tot))}</b></div><div class="stat"><span class="mu">現金</span><b>${fm(Math.round(PT.cash))}</b></div><div class="stat"><span class="mu">持股市值</span><b>${fm(Math.round(mv))}</b></div><div class="stat"><span class="mu">總損益</span><b class="${cc(pl)}">${pl>=0?'+':''}${fm(Math.round(pl))}<small style="font-size:13px"> (${(pl/10000).toFixed(2)}%)</small></b></div>`;
