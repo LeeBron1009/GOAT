@@ -345,8 +345,9 @@ function cmp(){const A=stocks.find(s=>s.code==$('c1').value),B=stocks.find(s=>s.
 
 /* ===== 即時更新 ===== */
 function marketOpen(){const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'})),w=d.getDay(),m=d.getHours()*60+d.getMinutes();return w>0&&w<6&&m>=535&&m<=820}
+let lastLive=0;
 async function pollLive(){
- if(document.hidden||!marketOpen()||!stocks.length)return;
+ if(document.hidden||!stocks.length)return;if(!marketOpen()){if(Date.now()-lastLive<60000)return}lastLive=Date.now();
  const top=[...stocks].sort((a,b)=>b.val-a.val).slice(0,12).map(s=>s.code);
  const codes=[...new Set([cur?cur.s.code:null,...W,...top].filter(Boolean))].slice(0,30);
  try{const r=await fetch(LIVE_URL+'?codes='+codes.join(','));const j=await r.json();
