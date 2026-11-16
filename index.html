@@ -361,6 +361,14 @@ async function pollLive(){
  }catch(e){}
 }
 setInterval(pollLive,7000);
+async function reloadHist(){
+ const r=await getJSON('history.json?t='+Date.now());
+ if(r&&Object.keys(r).length){REAL=r;for(const k in H)delete H[k]}
+ const m=await getJSON('horizon_results.json?t='+Date.now());
+ if(m){HR=m;renderHR()}
+ if(cur&&$('ana').classList.contains('on'))analyze(cur.s.code)
+}
+setInterval(()=>{if(!document.hidden)reloadHist()},300000);
 
 /* ===== 回測 ===== */
 function btGo(){if(cur)$('btsel').value=cur.s.code;go('bt');runBT()}
